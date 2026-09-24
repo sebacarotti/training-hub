@@ -1,12 +1,33 @@
 import streamlit as st
-
+import requests
 st.set_page_config(
     page_title="Training Hub",
     page_icon="💪",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 
+headers = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}"
+}
+
+
+def supabase_get(table, params=None):
+    url = f"{SUPABASE_URL}/rest/v1/{table}"
+
+    response = requests.get(
+        url,
+        headers=headers,
+        params=params,
+        timeout=10
+    )
+
+    response.raise_for_status()
+
+    return response.json()
 st.markdown("""
 <style>
     .stApp {
@@ -185,3 +206,35 @@ if st.session_state.get("started"):
 
     if st.button("✓ COMPLETA ALLENAMENTO"):
         st.success("Allenamento completato!")
+st.markdown("---")
+st.markdown("### 🔌 Test connessione Supabase")
+
+try:
+
+    sets_db = supabase_get(
+        "prescribed_sets",
+        {
+            "select": "set_number,target_reps,target_weight_kg",
+            "order": "set_number.asc"
+        }
+    )
+
+    if sets_db:
+
+        st.success("Supabase collegato correttamente! ✅")
+
+        for serie in sets_db:
+
+            st.write(
+                f"Serie {serie['set_number']} → "
+                f"{serie['target_reps']} reps × "
+                f"{serie['target_weight_kg']} kg"
+            )
+
+    else:
+        st.warning("Connessione riuscita, ma non ho trovato serie.")
+
+except Exception as e:
+
+    st.error("Errore nella connessione a Supabase")
+    st.code(str(e))
