@@ -22,11 +22,10 @@ HEADERS = {
 
 
 # ============================================================
-# SUPABASE
+# FUNZIONE SUPABASE
 # ============================================================
 
 def supabase_get(table, params=None):
-
     url = f"{SUPABASE_URL}/rest/v1/{table}"
 
     response = requests.get(
@@ -42,12 +41,15 @@ def supabase_get(table, params=None):
 
 
 # ============================================================
-# CARICAMENTO DATI
+# CARICAMENTO ALLENAMENTO
 # ============================================================
 
 def load_training():
 
+    # --------------------------------------------------------
     # ATLETA TEST
+    # --------------------------------------------------------
+
     athletes = supabase_get(
         "athletes",
         {
@@ -61,7 +63,10 @@ def load_training():
 
     athlete = athletes[0]
 
+    # --------------------------------------------------------
     # PROGRAMMA ASSEGNATO
+    # --------------------------------------------------------
+
     assignments = supabase_get(
         "athlete_programs",
         {
@@ -89,7 +94,10 @@ def load_training():
 
     program = programs[0]
 
-    # PRIMO ALLENAMENTO DEL PROGRAMMA
+    # --------------------------------------------------------
+    # ALLENAMENTO
+    # --------------------------------------------------------
+
     workouts = supabase_get(
         "workouts",
         {
@@ -104,7 +112,10 @@ def load_training():
 
     workout = workouts[0]
 
+    # --------------------------------------------------------
     # ESERCIZI DELL'ALLENAMENTO
+    # --------------------------------------------------------
+
     workout_exercises = supabase_get(
         "workout_exercises",
         {
@@ -140,11 +151,13 @@ def load_training():
             }
         )
 
-        exercise_data.append({
-            "workout_exercise": we,
-            "exercise": exercise,
-            "sets": sets
-        })
+        exercise_data.append(
+            {
+                "workout_exercise": we,
+                "exercise": exercise,
+                "sets": sets
+            }
+        )
 
     return {
         "athlete": athlete,
@@ -158,144 +171,160 @@ def load_training():
 # DESIGN
 # ============================================================
 
-st.markdown("""
-<style>
+st.markdown(
+    """
+    <style>
 
-.stApp {
-    background: #090b0e;
-    color: white;
-}
+    .stApp {
+        background: #090b0e;
+        color: white;
+    }
 
-.block-container {
-    max-width: 680px;
-    padding-top: 2rem;
-    padding-bottom: 6rem;
-}
+    .block-container {
+        max-width: 680px;
+        padding-top: 2rem;
+        padding-bottom: 6rem;
+    }
 
-.brand {
-    color: #ff3b3f;
-    font-size: 13px;
-    font-weight: 900;
-    letter-spacing: 2px;
-}
+    .brand {
+        color: #ff3b3f;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-bottom: 3px;
+    }
 
-.hello {
-    font-size: 32px;
-    font-weight: 900;
-    margin-top: 4px;
-}
+    .hello {
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 5px;
+    }
 
-.subtitle {
-    color: #969ba5;
-    margin-bottom: 25px;
-}
+    .subtitle {
+        color: #969ba5;
+        margin-bottom: 24px;
+    }
 
-.workout-card {
-    background: #14171c;
-    border: 1px solid #292d34;
-    border-radius: 18px;
-    padding: 22px;
-    margin: 15px 0 20px 0;
-}
+    .workout-card {
+        background: #14171c;
+        border: 1px solid #292d34;
+        border-radius: 18px;
+        padding: 22px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
 
-.tag {
-    color: #ff4b4f;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
+    .tag {
+        color: #ff4b4f;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
 
-.workout-title {
-    font-size: 28px;
-    font-weight: 900;
-    margin-top: 5px;
-}
+    .workout-title {
+        color: white;
+        font-size: 28px;
+        font-weight: 900;
+        margin-bottom: 4px;
+    }
 
-.workout-info {
-    color: #a1a6af;
-    margin-top: 6px;
-}
+    .workout-info {
+        color: #a1a6af;
+        font-size: 15px;
+    }
 
-.exercise-card {
-    background: #14171c;
-    border: 1px solid #292d34;
-    border-radius: 16px;
-    padding: 18px;
-    margin-top: 16px;
-}
+    .exercise-card {
+        background: #14171c;
+        border: 1px solid #292d34;
+        border-radius: 16px;
+        padding: 18px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
 
-.exercise-number {
-    color: #ff4b4f;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
+    .exercise-number {
+        color: #ff4b4f;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
 
-.exercise-title {
-    font-size: 21px;
-    font-weight: 800;
-    margin-top: 3px;
-}
+    .exercise-title {
+        color: white;
+        font-size: 22px;
+        font-weight: 800;
+        margin-top: 3px;
+    }
 
-.exercise-category {
-    color: #979ca5;
-    font-size: 14px;
-}
+    .exercise-category {
+        color: #979ca5;
+        font-size: 14px;
+        margin-top: 2px;
+    }
 
-.prescription {
-    background: #101216;
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-top: 10px;
-    color: #e5e7eb;
-}
+    .prescription {
+        background: #101216;
+        border: 1px solid #242830;
+        border-radius: 10px;
+        padding: 11px 14px;
+        margin-top: 12px;
+        margin-bottom: 5px;
+        color: #e5e7eb;
+    }
 
-div.stButton > button {
-    width: 100%;
-    height: 50px;
-    border-radius: 12px;
-    border: none;
-    background: #e63236;
-    color: white;
-    font-weight: 800;
-    font-size: 15px;
-}
+    div.stButton > button {
+        width: 100%;
+        min-height: 50px;
+        border-radius: 12px;
+        border: none;
+        background: #e63236;
+        color: white;
+        font-weight: 800;
+        font-size: 15px;
+    }
 
-div[data-testid="stNumberInput"] input {
-    background-color: #14171c;
-    color: white;
-}
+    div.stButton > button:hover {
+        background: #f23b40;
+        color: white;
+        border: none;
+    }
 
-div[data-testid="stTextArea"] textarea {
-    background-color: #14171c;
-    color: white;
-}
+    div[data-testid="stNumberInput"] input {
+        background-color: #14171c;
+        color: white;
+    }
 
-hr {
-    border-color: #292d34;
-}
+    div[data-testid="stTextArea"] textarea {
+        background-color: #14171c;
+        color: white;
+    }
 
-</style>
-""", unsafe_allow_html=True)
+    hr {
+        border-color: #292d34;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # ============================================================
-# APP
+# LETTURA DATI
 # ============================================================
 
 try:
-
     data = load_training()
 
 except Exception as e:
-
     st.error("Errore nel collegamento con Supabase.")
     st.code(str(e))
     st.stop()
 
 
 if not data:
-
     st.error("Nessun programma trovato.")
     st.stop()
 
@@ -326,78 +355,88 @@ st.markdown(
 )
 
 
+# ============================================================
+# CARD ALLENAMENTO
+# ============================================================
+
+workout_name = workout["name"]
+exercise_count = len(exercise_data)
+estimated_minutes = workout.get("estimated_minutes") or "--"
+
+workout_card = (
+    '<div class="workout-card">'
+    '<div class="tag">ALLENAMENTO</div>'
+    f'<div class="workout-title">{workout_name}</div>'
+    f'<div class="workout-info">'
+    f'{exercise_count} {"esercizio" if exercise_count == 1 else "esercizi"}'
+    f' &nbsp; • &nbsp; circa {estimated_minutes} min'
+    '</div>'
+    '</div>'
+)
+
 st.markdown(
-    f"""
-    <div class="workout-card">
-
-        <div class="tag">
-            ALLENAMENTO
-        </div>
-
-        <div class="workout-title">
-            {workout["name"]}
-        </div>
-
-        <div class="workout-info">
-            {len(exercise_data)} esercizi
-            &nbsp; • &nbsp;
-            circa {workout.get("estimated_minutes") or "--"} min
-        </div>
-
-    </div>
-    """,
+    workout_card,
     unsafe_allow_html=True
 )
 
 
 # ============================================================
-# INIZIA ALLENAMENTO
+# PULSANTE INIZIA
 # ============================================================
 
-if st.button("▶ INIZIA ALLENAMENTO"):
-
+if st.button(
+    "▶ INIZIA ALLENAMENTO",
+    key="start_training"
+):
     st.session_state["training_started"] = True
 
+
+# ============================================================
+# ALLENAMENTO APERTO
+# ============================================================
 
 if st.session_state.get("training_started"):
 
     st.markdown("## Allenamento")
 
     if not exercise_data:
-
         st.warning(
             "Non ci sono ancora esercizi assegnati a questo allenamento."
         )
 
-    for index, item in enumerate(exercise_data, start=1):
+    # --------------------------------------------------------
+    # CICLO ESERCIZI
+    # --------------------------------------------------------
+
+    for index, item in enumerate(
+        exercise_data,
+        start=1
+    ):
 
         exercise = item["exercise"]
         we = item["workout_exercise"]
         sets = item["sets"]
 
+        exercise_name = exercise["name"]
+        exercise_category = exercise.get("category") or ""
+
+        exercise_card = (
+            '<div class="exercise-card">'
+            f'<div class="exercise-number">ESERCIZIO {index}</div>'
+            f'<div class="exercise-title">{exercise_name}</div>'
+            f'<div class="exercise-category">{exercise_category}</div>'
+            '</div>'
+        )
+
         st.markdown(
-            f"""
-            <div class="exercise-card">
-
-                <div class="exercise-number">
-                    ESERCIZIO {index}
-                </div>
-
-                <div class="exercise-title">
-                    {exercise["name"]}
-                </div>
-
-                <div class="exercise-category">
-                    {exercise.get("category") or ""}
-                </div>
-
-            </div>
-            """,
+            exercise_card,
             unsafe_allow_html=True
         )
 
+        # ----------------------------------------------------
+        # IMMAGINE
+        # ----------------------------------------------------
 
-        # FOTO
         if exercise.get("image_url"):
 
             st.image(
@@ -405,60 +444,73 @@ if st.session_state.get("training_started"):
                 use_container_width=True
             )
 
-
+        # ----------------------------------------------------
         # DESCRIZIONE
+        # ----------------------------------------------------
+
         if exercise.get("description"):
 
             st.caption(
                 exercise["description"]
             )
 
-
+        # ----------------------------------------------------
         # NOTE COACH
+        # ----------------------------------------------------
+
         if we.get("coach_notes"):
 
             st.info(
                 f"📝 Coach: {we['coach_notes']}"
             )
 
-
+        # ----------------------------------------------------
         # VIDEO
+        # ----------------------------------------------------
+
         if exercise.get("video_url"):
 
             st.link_button(
-                "▶ Guarda video",
+                "▶ GUARDA VIDEO",
                 exercise["video_url"]
             )
 
-
-        # ====================================================
+        # ----------------------------------------------------
         # SERIE PRESCRITTE
-        # ====================================================
+        # ----------------------------------------------------
 
         if sets:
 
-            st.markdown("##### Serie")
+            st.markdown("### Serie")
 
             for s in sets:
 
                 set_number = s["set_number"]
-
                 target_reps = s.get("target_reps")
                 target_weight = s.get("target_weight_kg")
 
+                reps_display = (
+                    target_reps
+                    if target_reps is not None
+                    else "-"
+                )
+
+                weight_display = (
+                    target_weight
+                    if target_weight is not None
+                    else "-"
+                )
+
+                prescription = (
+                    '<div class="prescription">'
+                    f'<b>Serie {set_number}</b><br>'
+                    f'Prescritto: {reps_display} reps × '
+                    f'{weight_display} kg'
+                    '</div>'
+                )
+
                 st.markdown(
-                    f"""
-                    <div class="prescription">
-
-                    <b>Serie {set_number}</b><br>
-
-                    Prescritto:
-                    {target_reps if target_reps is not None else "-"} reps
-                    ×
-                    {target_weight if target_weight is not None else "-"} kg
-
-                    </div>
-                    """,
+                    prescription,
                     unsafe_allow_html=True
                 )
 
@@ -484,38 +536,33 @@ if st.session_state.get("training_started"):
                         key=f"reps_{we['id']}_{set_number}"
                     )
 
-
         else:
 
             st.caption(
                 "Nessuna serie prescritta."
             )
 
-
-        # ====================================================
+        # ----------------------------------------------------
         # SERIE EXTRA
-        # ====================================================
+        # ----------------------------------------------------
 
         extra_key = f"extra_sets_{we['id']}"
 
         if extra_key not in st.session_state:
             st.session_state[extra_key] = 0
 
-
         if st.button(
             "＋ AGGIUNGI SERIE",
-            key=f"add_{we['id']}"
+            key=f"add_extra_{we['id']}"
         ):
-
             st.session_state[extra_key] += 1
-
 
         for extra in range(
             st.session_state[extra_key]
         ):
 
             st.markdown(
-                f"**Serie extra {extra + 1}**"
+                f"#### Serie extra {extra + 1}"
             )
 
             col1, col2 = st.columns(2)
@@ -525,6 +572,7 @@ if st.session_state.get("training_started"):
                 st.number_input(
                     "KG",
                     min_value=0.0,
+                    value=0.0,
                     step=2.5,
                     key=f"extra_kg_{we['id']}_{extra}"
                 )
@@ -534,10 +582,10 @@ if st.session_state.get("training_started"):
                 st.number_input(
                     "Reps",
                     min_value=0,
+                    value=0,
                     step=1,
                     key=f"extra_reps_{we['id']}_{extra}"
                 )
-
 
         st.markdown("---")
 
@@ -552,16 +600,20 @@ if st.session_state.get("training_started"):
         "RPE sessione",
         min_value=1,
         max_value=10,
-        value=7
+        value=7,
+        key="session_rpe"
     )
 
     athlete_notes = st.text_area(
-        "Note",
-        placeholder="Come è andato l'allenamento?"
+        "Note allenamento",
+        placeholder="Come è andato l'allenamento?",
+        key="athlete_notes"
     )
 
-
-    if st.button("✓ COMPLETA ALLENAMENTO"):
+    if st.button(
+        "✓ COMPLETA ALLENAMENTO",
+        key="complete_training"
+    ):
 
         st.success(
             "Allenamento pronto per essere salvato! 💪"
