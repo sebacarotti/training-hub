@@ -3,8 +3,8 @@ import requests
 import html
 
 # ============================================================
-# TRAINING HUB V6
-# Mobile exercise screen
+# TRAINING HUB V7
+# MOBILE FIRST
 # ============================================================
 
 st.set_page_config(
@@ -134,8 +134,8 @@ def load_training():
         }
 
     exercise_ids = [
-        str(item["exercise_id"])
-        for item in workout_exercises
+        str(x["exercise_id"])
+        for x in workout_exercises
     ]
 
     exercises = supabase_get(
@@ -150,8 +150,8 @@ def load_training():
     )
 
     workout_exercise_ids = [
-        str(item["id"])
-        for item in workout_exercises
+        str(x["id"])
+        for x in workout_exercises
     ]
 
     prescribed_sets = supabase_get(
@@ -163,34 +163,33 @@ def load_training():
                 "target_percentage,target_rpe,"
                 "rest_seconds,notes"
             ),
-            "workout_exercise_id": (
-                f"in.({','.join(workout_exercise_ids)})"
-            ),
+            "workout_exercise_id":
+                f"in.({','.join(workout_exercise_ids)})",
             "order": "set_number.asc",
         },
     )
 
     exercises_by_id = {
-        item["id"]: item
-        for item in exercises
+        x["id"]: x
+        for x in exercises
     }
 
-    sets_by_workout_exercise = {}
+    sets_by_we = {}
 
-    for prescribed_set in prescribed_sets:
-        workout_exercise_id = prescribed_set["workout_exercise_id"]
+    for set_item in prescribed_sets:
+        we_id = set_item["workout_exercise_id"]
 
-        sets_by_workout_exercise.setdefault(
-            workout_exercise_id,
+        sets_by_we.setdefault(
+            we_id,
             [],
-        ).append(prescribed_set)
+        ).append(set_item)
 
     exercise_data = []
 
-    for workout_exercise in workout_exercises:
+    for we in workout_exercises:
 
         exercise = exercises_by_id.get(
-            workout_exercise["exercise_id"]
+            we["exercise_id"]
         )
 
         if not exercise:
@@ -198,10 +197,10 @@ def load_training():
 
         exercise_data.append(
             {
-                "workout_exercise": workout_exercise,
+                "workout_exercise": we,
                 "exercise": exercise,
-                "sets": sets_by_workout_exercise.get(
-                    workout_exercise["id"],
+                "sets": sets_by_we.get(
+                    we["id"],
                     [],
                 ),
             }
@@ -217,14 +216,14 @@ def load_training():
 
 
 # ============================================================
-# LOAD
+# LOAD DATA
 # ============================================================
 
 try:
     DATA = load_training()
 
 except Exception as error:
-    st.error(f"Errore collegamento database: {error}")
+    st.error(f"Errore database: {error}")
     st.stop()
 
 if not DATA:
@@ -254,9 +253,9 @@ st.markdown(
     """
 <style>
 
-/* ==========================================================
-   GLOBAL
-========================================================== */
+/* ================================================
+   BASE
+================================================ */
 
 #MainMenu,
 footer,
@@ -273,25 +272,32 @@ header {
 html,
 body {
     background: #080b0e;
+    overflow-x: hidden !important;
 }
 
 .stApp {
     background:
         radial-gradient(
-            circle at 50% -8%,
-            #192029 0%,
-            #0c1014 34%,
-            #07090b 75%
+            circle at 50% -10%,
+            #182029 0%,
+            #0c1014 35%,
+            #07090b 76%
         );
-    color: white;
+
+    color: #ffffff;
+
+    overflow-x: hidden !important;
 }
 
 .block-container {
     max-width: 620px;
-    padding-top: 18px;
+
+    padding-top: 16px;
     padding-left: 16px;
     padding-right: 16px;
     padding-bottom: 100px;
+
+    overflow-x: hidden !important;
 }
 
 html,
@@ -306,9 +312,9 @@ body,
 }
 
 
-/* ==========================================================
-   STANDARD BUTTON
-========================================================== */
+/* ================================================
+   GENERAL BUTTON
+================================================ */
 
 .stButton > button {
     width: 100%;
@@ -323,43 +329,45 @@ body,
     color: white;
 
     font-weight: 800;
-
-    transition: all .15s ease;
 }
 
 .stButton > button:hover {
     color: white;
-    background: #20252c;
+
     border-color: #ff3d46;
+
+    background: #20252c;
 }
 
 .stButton > button[kind="primary"] {
+    color: white;
+
+    border: none;
+
     background:
         linear-gradient(
             135deg,
             #ff3039,
-            #ff444c
+            #ff484f
         );
-
-    border: none;
-    color: white;
 }
 
 
-/* ==========================================================
+/* ================================================
    HOME
-========================================================== */
+================================================ */
 
 .app-top {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+
     margin-bottom: 28px;
 }
 
 .logo {
     font-size: 18px;
-    font-weight: 900;
+    font-weight: 950;
     letter-spacing: 1px;
 }
 
@@ -368,24 +376,26 @@ body,
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
-
-    border-radius: 50%;
-
-    background: #20242a;
-    border: 1px solid #353b44;
+    width: 42px;
+    height: 42px;
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    border-radius: 50%;
+
+    background: #20242a;
+
+    border: 1px solid #353b44;
 
     font-weight: 900;
 }
 
 .hello {
     font-size: 30px;
-    font-weight: 900;
+    font-weight: 950;
+
     line-height: 1.1;
 }
 
@@ -394,16 +404,19 @@ body,
     margin-bottom: 25px;
 
     color: #9299a4;
+
     font-size: 14px;
 }
 
 
-/* ==========================================================
+/* ================================================
    HERO
-========================================================== */
+================================================ */
 
 .hero {
     padding: 22px;
+
+    margin-bottom: 13px;
 
     border-radius: 24px;
 
@@ -415,11 +428,6 @@ body,
             #20242b,
             #12151a
         );
-
-    box-shadow:
-        0 20px 45px rgba(0,0,0,.28);
-
-    margin-bottom: 13px;
 }
 
 .hero-label {
@@ -432,20 +440,25 @@ body,
 }
 
 .hero-title {
-    font-size: 31px;
-    font-weight: 900;
     margin-top: 5px;
+
+    font-size: 31px;
+    font-weight: 950;
 }
 
 .hero-sub {
+    margin-top: 3px;
+
     color: #949ba5;
+
     font-size: 13px;
-    margin-top: 2px;
 }
 
 .stats {
     display: flex;
+
     gap: 8px;
+
     margin-top: 22px;
 }
 
@@ -463,24 +476,24 @@ body,
 
 .stat-number {
     font-size: 19px;
-    font-weight: 900;
+    font-weight: 950;
 }
 
 .stat-label {
+    margin-top: 2px;
+
     color: #717985;
 
     font-size: 9px;
     font-weight: 800;
 
     text-transform: uppercase;
-
-    margin-top: 2px;
 }
 
 
-/* ==========================================================
+/* ================================================
    PROGRESS
-========================================================== */
+================================================ */
 
 .progress-bg {
     width: 100%;
@@ -488,11 +501,11 @@ body,
 
     margin-top: 17px;
 
-    background: #292d33;
+    overflow: hidden;
 
     border-radius: 100px;
 
-    overflow: hidden;
+    background: #292d33;
 }
 
 .progress-fill {
@@ -509,11 +522,14 @@ body,
 }
 
 
-/* ==========================================================
-   SECTION
-========================================================== */
+/* ================================================
+   TITLES
+================================================ */
 
 .section-title {
+    margin-top: 26px;
+    margin-bottom: 10px;
+
     color: #858d98;
 
     font-size: 11px;
@@ -522,28 +538,27 @@ body,
     letter-spacing: 1.6px;
 
     text-transform: uppercase;
-
-    margin-top: 26px;
-    margin-bottom: 10px;
 }
 
 
-/* ==========================================================
-   EXERCISE CARDS
-========================================================== */
+/* ================================================
+   WORKOUT EXERCISE CARDS
+================================================ */
 
 div[class*="st-key-exercise_card_"] button {
     width: 100%;
 
-    min-height: 98px;
-
-    padding:
-        13px
-        48px
-        13px
-        86px;
+    min-height: 94px;
 
     position: relative;
+
+    padding:
+        12px
+        45px
+        12px
+        82px;
+
+    overflow: hidden;
 
     border-radius: 18px;
 
@@ -556,13 +571,6 @@ div[class*="st-key-exercise_card_"] button {
     text-align: left;
 
     justify-content: flex-start;
-
-    overflow: hidden;
-}
-
-div[class*="st-key-exercise_card_"] button:hover {
-    background: #191d22;
-    border-color: #414751;
 }
 
 div[class*="st-key-exercise_card_"] button::before {
@@ -570,13 +578,13 @@ div[class*="st-key-exercise_card_"] button::before {
 
     position: absolute;
 
-    left: 13px;
+    left: 12px;
     top: 50%;
 
     transform: translateY(-50%);
 
-    width: 60px;
-    height: 60px;
+    width: 58px;
+    height: 58px;
 
     display: flex;
     align-items: center;
@@ -591,7 +599,7 @@ div[class*="st-key-exercise_card_"] button::before {
             #1b1f25
         );
 
-    font-size: 24px;
+    font-size: 23px;
 }
 
 div[class*="st-key-exercise_card_"] button::after {
@@ -599,7 +607,7 @@ div[class*="st-key-exercise_card_"] button::after {
 
     position: absolute;
 
-    right: 16px;
+    right: 15px;
     top: 50%;
 
     transform: translateY(-50%);
@@ -616,32 +624,28 @@ div[class*="st-key-exercise_card_"] button p {
 
     text-align: left;
 
-    font-size: 13px;
+    font-size: 12px;
 
     line-height: 1.45;
 }
 
 
-/* ==========================================================
+/* ================================================
    EXERCISE DETAIL
-========================================================== */
+================================================ */
 
 .exercise-code {
-    min-width: 45px;
     height: 42px;
 
-    padding: 0 12px;
-
-    border-radius: 14px;
+    padding: 0 13px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    color: white;
+    border-radius: 14px;
 
-    font-size: 13px;
-    font-weight: 900;
+    border: 1px solid #ff3d46;
 
     background:
         linear-gradient(
@@ -650,37 +654,50 @@ div[class*="st-key-exercise_card_"] button p {
             #2c1519
         );
 
-    border: 1px solid #ff3d46;
+    color: white;
+
+    font-size: 13px;
+    font-weight: 950;
 }
 
 .exercise-name {
+    margin-top: 12px;
+    margin-bottom: 5px;
+
     color: white;
 
     font-size: 32px;
     font-weight: 950;
 
-    line-height: 1.06;
-
-    margin-top: 12px;
-    margin-bottom: 5px;
+    line-height: 1.05;
 }
 
 .exercise-category {
+    margin-bottom: 15px;
+
     color: #8c949f;
 
     font-size: 14px;
-
-    margin-bottom: 15px;
 }
 
 
-/* ==========================================================
-   MEDIA
-========================================================== */
+/* ================================================
+   EXERCISE IMAGE
+================================================ */
 
 .exercise-media {
     width: 100%;
     height: 190px;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    margin-bottom: 11px;
 
     border-radius: 21px;
 
@@ -692,59 +709,26 @@ div[class*="st-key-exercise_card_"] button p {
             #242a31,
             #111419 70%
         );
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    position: relative;
-
-    overflow: hidden;
-
-    margin-bottom: 11px;
 }
 
 .exercise-media-placeholder {
-    font-size: 50px;
-    opacity: .95;
-}
-
-.media-play {
-    position: absolute;
-
-    right: 17px;
-    bottom: 16px;
-
-    width: 50px;
-    height: 50px;
-
-    border-radius: 50%;
-
-    border: 1px solid #404751;
-
-    background: rgba(10,12,15,.86);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 18px;
+    font-size: 48px;
 }
 
 .exercise-description {
+    margin-bottom: 13px;
+
     color: #a5acb5;
 
     font-size: 12px;
 
     line-height: 1.45;
-
-    margin-bottom: 12px;
 }
 
 
-/* ==========================================================
-   QUICK STATS
-========================================================== */
+/* ================================================
+   EXERCISE STATS
+================================================ */
 
 .exercise-stats {
     display: grid;
@@ -755,14 +739,19 @@ div[class*="st-key-exercise_card_"] button p {
     gap: 7px;
 
     margin-top: 13px;
-    margin-bottom: 25px;
+    margin-bottom: 27px;
 }
 
 .exercise-stat {
     min-width: 0;
-    min-height: 68px;
+    min-height: 67px;
 
-    padding: 10px 8px;
+    padding: 9px 7px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
 
     border-radius: 16px;
 
@@ -774,64 +763,60 @@ div[class*="st-key-exercise_card_"] button p {
             #191d22,
             #111419
         );
-
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
 }
 
 .exercise-stat-icon {
-    width: 33px;
-    height: 33px;
+    width: 32px;
+    height: 32px;
 
-    flex: 0 0 33px;
-
-    border-radius: 10px;
+    flex: 0 0 32px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border-radius: 10px;
+
     background: #35171c;
 
     color: #ff4149;
 
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .exercise-stat-value {
     color: white;
 
-    font-size: 13px;
-    font-weight: 900;
+    font-size: 12px;
+    font-weight: 950;
 
     white-space: nowrap;
 }
 
 .exercise-stat-label {
+    margin-top: 2px;
+
     color: #777f8a;
 
-    font-size: 8px;
+    font-size: 7px;
     font-weight: 800;
-
-    margin-top: 2px;
 
     text-transform: uppercase;
 }
 
 
-/* ==========================================================
-   SET AREA
-========================================================== */
+/* ================================================
+   SET TITLE
+================================================ */
 
 .set-title-row {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
-    margin-top: 7px;
-    margin-bottom: 10px;
+    margin-top: 6px;
+    margin-bottom: 7px;
 }
 
 .set-title {
@@ -847,140 +832,126 @@ div[class*="st-key-exercise_card_"] button p {
     color: #ff464e;
 
     font-size: 10px;
-    font-weight: 900;
+    font-weight: 950;
 }
 
 
-/* ==========================================================
-   FORCE STREAMLIT SET ROWS HORIZONTAL
-========================================================== */
+/* ================================================
+   SET HEADER + ROW
 
-div[class*="st-key-set_header"] [data-testid="stHorizontalBlock"],
-div[class*="st-key-setrow_"] [data-testid="stHorizontalBlock"] {
-    display: flex !important;
+   IMPORTANT:
+   no fixed desktop width
+================================================ */
 
-    flex-direction: row !important;
+div[class*="st-key-set_header_"],
+div[class*="st-key-setrow_"] {
+    width: 100% !important;
+    max-width: 100% !important;
 
-    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+}
+
+div[class*="st-key-set_header_"]
+[data-testid="stHorizontalBlock"],
+
+div[class*="st-key-setrow_"]
+[data-testid="stHorizontalBlock"] {
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        32px
+        52px
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        27px !important;
+
+    gap: 4px !important;
 
     align-items: center !important;
-
-    gap: 5px !important;
 }
 
-div[class*="st-key-set_header"] [data-testid="column"],
-div[class*="st-key-setrow_"] [data-testid="column"] {
+
+/* Streamlit columns become grid children */
+
+div[class*="st-key-set_header_"]
+[data-testid="column"],
+
+div[class*="st-key-setrow_"]
+[data-testid="column"] {
+
+    width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
 
-    width: auto !important;
-
-    flex-shrink: 1 !important;
+    flex: none !important;
 }
 
 
-/* SET */
-
-div[class*="st-key-set_header"] [data-testid="column"]:nth-child(1),
-div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(1) {
-    flex: 0 0 38px !important;
-}
-
-
-/* PRESCR */
-
-div[class*="st-key-set_header"] [data-testid="column"]:nth-child(2),
-div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(2) {
-    flex: 0 0 65px !important;
-}
-
-
-/* KG */
-
-div[class*="st-key-set_header"] [data-testid="column"]:nth-child(3),
-div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(3) {
-    flex: 1.15 1 0 !important;
-}
-
-
-/* REPS */
-
-div[class*="st-key-set_header"] [data-testid="column"]:nth-child(4),
-div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(4) {
-    flex: 1 1 0 !important;
-}
-
-
-/* CHECK */
-
-div[class*="st-key-set_header"] [data-testid="column"]:nth-child(5),
-div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(5) {
-    flex: 0 0 31px !important;
-}
-
-
-/* ==========================================================
-   SET HEADER
-========================================================== */
-
-div[class*="st-key-set_header"] {
-    margin-bottom: 5px;
-}
+/* ================================================
+   HEADER
+================================================ */
 
 .set-header-cell {
-    height: 25px;
+    height: 27px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    color: #747d89;
+    color: #737c88;
 
-    font-size: 8px;
-    font-weight: 900;
+    font-size: 7px;
+    font-weight: 950;
 
-    text-align: center;
+    white-space: nowrap;
 }
 
 
-/* ==========================================================
-   SET ROW
-========================================================== */
+/* ================================================
+   ROW CARD
+================================================ */
 
 div[class*="st-key-setrow_"] {
+    margin-bottom: 6px;
+
+    padding: 5px;
+
+    border-radius: 13px;
+
+    border: 1px solid #222831;
+
     background:
         linear-gradient(
             145deg,
             #12161b,
             #0e1115
         );
-
-    border: 1px solid #20252c;
-
-    border-radius: 14px;
-
-    padding: 6px 6px;
-
-    margin-bottom: 6px;
 }
 
 .set-number-box {
+    width: 100%;
     height: 38px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 10px;
+    border-radius: 9px;
 
     background: #1b2026;
 
     color: white;
 
-    font-size: 12px;
-    font-weight: 900;
+    font-size: 11px;
+    font-weight: 950;
 }
 
 .set-prescription {
+    width: 100%;
     height: 38px;
 
     display: flex;
@@ -989,66 +960,78 @@ div[class*="st-key-setrow_"] {
 
     color: #a2a9b2;
 
-    font-size: 9px;
-
-    text-align: center;
+    font-size: 8px;
 
     white-space: nowrap;
+
+    text-align: center;
 }
 
 .extra-set-number {
     background: #35171c;
+
     color: #ff5058;
 }
 
 .extra-label {
     color: #ff5058;
+
     font-weight: 900;
 }
 
 
-/* ==========================================================
+/* ================================================
    NUMBER INPUT
-========================================================== */
+================================================ */
 
-div[class*="st-key-setrow_"] [data-testid="stNumberInput"] {
+div[class*="st-key-setrow_"]
+[data-testid="stNumberInput"] {
+
     width: 100% !important;
-
     min-width: 0 !important;
 
     margin: 0 !important;
 }
 
-div[class*="st-key-setrow_"] [data-testid="stNumberInput"] label {
+div[class*="st-key-setrow_"]
+[data-testid="stNumberInput"] label {
+
     display: none !important;
 }
 
-div[class*="st-key-setrow_"] [data-testid="stNumberInput"] > div {
-    width: 100% !important;
+div[class*="st-key-setrow_"]
+[data-testid="stNumberInput"] > div {
 
+    width: 100% !important;
     min-width: 0 !important;
 }
 
-div[class*="st-key-setrow_"] [data-testid="stNumberInput"] input {
-    width: 100% !important;
+div[class*="st-key-setrow_"]
+[data-testid="stNumberInput"] input {
 
+    width: 100% !important;
     min-width: 0 !important;
 
-    min-height: 38px !important;
     height: 38px !important;
+    min-height: 38px !important;
 
-    padding: 0 1px !important;
+    padding:
+        0
+        18px !important;
+
+    border-radius: 9px !important;
 
     text-align: center !important;
 
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 900 !important;
 }
 
-div[class*="st-key-setrow_"] [data-testid="stNumberInput"] button {
-    min-width: 22px !important;
+div[class*="st-key-setrow_"]
+[data-testid="stNumberInput"] button {
 
-    width: 22px !important;
+    width: 18px !important;
+    min-width: 18px !important;
 
     height: 38px !important;
 
@@ -1056,34 +1039,39 @@ div[class*="st-key-setrow_"] [data-testid="stNumberInput"] button {
 }
 
 
-/* ==========================================================
+/* ================================================
    CHECKBOX
-========================================================== */
+================================================ */
 
-div[class*="st-key-setrow_"] [data-testid="stCheckbox"] {
+div[class*="st-key-setrow_"]
+[data-testid="stCheckbox"] {
+
+    min-height: 38px !important;
+
     display: flex !important;
 
     align-items: center !important;
     justify-content: center !important;
 
-    min-height: 38px !important;
-
     margin: 0 !important;
 }
 
-div[class*="st-key-setrow_"] [data-testid="stCheckbox"] label {
+div[class*="st-key-setrow_"]
+[data-testid="stCheckbox"] label {
+
     padding: 0 !important;
 }
 
 
-/* ==========================================================
+/* ================================================
    ADD SET
-========================================================== */
+================================================ */
 
 div[class*="st-key-add_set_"] button {
-    margin-top: 8px;
 
     min-height: 48px;
+
+    margin-top: 8px;
 
     border-radius: 15px;
 
@@ -1102,16 +1090,23 @@ div[class*="st-key-add_set_"] button {
 }
 
 
-/* ==========================================================
-   REST
-========================================================== */
+/* ================================================
+   REST PANEL
+================================================ */
 
 .rest-panel {
+    min-height: 82px;
+
     margin-top: 17px;
 
-    min-height: 88px;
+    padding: 13px;
 
-    padding: 15px;
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 7px;
 
     border-radius: 18px;
 
@@ -1123,30 +1118,20 @@ div[class*="st-key-add_set_"] button {
             #37181d,
             #181216 70%
         );
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 10px;
 }
 
 .rest-left {
     color: #ff4c54;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 900;
-
-    letter-spacing: .8px;
 }
 
 .rest-clock {
     color: white;
 
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 950;
-
-    letter-spacing: 1px;
 }
 
 .rest-actions {
@@ -1154,37 +1139,40 @@ div[class*="st-key-add_set_"] button {
 
     align-items: center;
 
-    gap: 5px;
+    gap: 4px;
 }
 
 .rest-mini {
-    min-width: 39px;
+    min-width: 34px;
+    height: 34px;
 
-    height: 37px;
-
-    padding: 0 6px;
-
-    border-radius: 11px;
-
-    background: #252a31;
-
-    border: 1px solid #343a43;
+    padding: 0 4px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border-radius: 10px;
+
+    border: 1px solid #343a43;
+
+    background: #252a31;
+
     color: white;
 
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 900;
 }
 
 .rest-play {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
 
-    flex: 0 0 44px;
+    flex: 0 0 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     border-radius: 50%;
 
@@ -1195,24 +1183,18 @@ div[class*="st-key-add_set_"] button {
             #ff5057
         );
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: white;
-
-    font-size: 16px;
+    font-size: 15px;
 }
 
 
-/* ==========================================================
+/* ================================================
    COACH NOTE
-========================================================== */
+================================================ */
 
 .coach-note {
     margin-top: 14px;
 
-    padding: 14px 15px;
+    padding: 14px;
 
     border-radius: 15px;
 
@@ -1227,14 +1209,14 @@ div[class*="st-key-add_set_"] button {
 }
 
 .coach-note-title {
+    margin-bottom: 5px;
+
     color: #ff464e;
 
     font-size: 9px;
     font-weight: 900;
 
     letter-spacing: 1px;
-
-    margin-bottom: 5px;
 }
 
 .coach-note-text {
@@ -1246,9 +1228,9 @@ div[class*="st-key-add_set_"] button {
 }
 
 
-/* ==========================================================
+/* ================================================
    BOTTOM NAV
-========================================================== */
+================================================ */
 
 .bottom-nav {
     position: fixed;
@@ -1284,7 +1266,6 @@ div[class*="st-key-add_set_"] button {
     color: #747c87;
 
     font-size: 9px;
-
     font-weight: 800;
 }
 
@@ -1303,17 +1284,22 @@ div[class*="st-key-add_set_"] button {
 }
 
 
-/* ==========================================================
+/* ================================================
    MOBILE
-========================================================== */
+================================================ */
 
 @media (max-width: 600px) {
 
     .block-container {
+        width: 100% !important;
+        max-width: 100% !important;
+
         padding-top: 12px;
         padding-left: 12px;
         padding-right: 12px;
         padding-bottom: 94px;
+
+        overflow-x: hidden !important;
     }
 
     .hello {
@@ -1321,8 +1307,9 @@ div[class*="st-key-add_set_"] button {
     }
 
     .hero {
-        border-radius: 21px;
         padding: 19px;
+
+        border-radius: 21px;
     }
 
     .hero-title {
@@ -1342,7 +1329,10 @@ div[class*="st-key-add_set_"] button {
     }
 
     .exercise-stat {
+        min-height: 62px;
+
         padding: 7px 5px;
+
         gap: 5px;
     }
 
@@ -1360,136 +1350,113 @@ div[class*="st-key-add_set_"] button {
     }
 
     .exercise-stat-label {
-        font-size: 7px;
+        font-size: 6px;
     }
 
 
-    /* ----------------------------------------------
-       CRITICAL MOBILE TABLE FIX
-    ---------------------------------------------- */
+    /* TABLE MOBILE */
 
-    div[class*="st-key-set_header"] [data-testid="stHorizontalBlock"],
-    div[class*="st-key-setrow_"] [data-testid="stHorizontalBlock"] {
-        display: flex !important;
+    div[class*="st-key-set_header_"]
+    [data-testid="stHorizontalBlock"],
 
-        flex-direction: row !important;
+    div[class*="st-key-setrow_"]
+    [data-testid="stHorizontalBlock"] {
 
-        flex-wrap: nowrap !important;
+        display: grid !important;
+
+        grid-template-columns:
+            30px
+            49px
+            minmax(0, 1fr)
+            minmax(0, 1fr)
+            25px !important;
 
         gap: 3px !important;
 
-        align-items: center !important;
-    }
+        width: 100% !important;
+        max-width: 100% !important;
 
-    div[class*="st-key-set_header"] [data-testid="column"],
-    div[class*="st-key-setrow_"] [data-testid="column"] {
-        min-width: 0 !important;
-
-        width: auto !important;
-
-        flex-shrink: 1 !important;
-    }
-
-    div[class*="st-key-set_header"] [data-testid="column"]:nth-child(1),
-    div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(1) {
-        flex: 0 0 32px !important;
-    }
-
-    div[class*="st-key-set_header"] [data-testid="column"]:nth-child(2),
-    div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(2) {
-        flex: 0 0 52px !important;
-    }
-
-    div[class*="st-key-set_header"] [data-testid="column"]:nth-child(3),
-    div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(3) {
-        flex: 1.10 1 0 !important;
-    }
-
-    div[class*="st-key-set_header"] [data-testid="column"]:nth-child(4),
-    div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(4) {
-        flex: 1 1 0 !important;
-    }
-
-    div[class*="st-key-set_header"] [data-testid="column"]:nth-child(5),
-    div[class*="st-key-setrow_"] [data-testid="column"]:nth-child(5) {
-        flex: 0 0 27px !important;
+        overflow: hidden !important;
     }
 
     div[class*="st-key-setrow_"] {
-        padding: 5px 3px !important;
+        width: 100% !important;
 
-        margin-bottom: 5px !important;
+        padding: 4px !important;
 
-        border-radius: 12px;
+        margin-bottom: 5px;
+
+        overflow: hidden !important;
+    }
+
+    .set-number-box,
+    .set-prescription {
+        height: 36px;
     }
 
     .set-number-box {
-        height: 36px;
-
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .set-prescription {
-        height: 36px;
-
-        font-size: 8px;
+        font-size: 7px;
     }
 
-    div[class*="st-key-setrow_"] [data-testid="stNumberInput"] button {
-        min-width: 19px !important;
-
-        width: 19px !important;
+    div[class*="st-key-setrow_"]
+    [data-testid="stNumberInput"] input {
 
         height: 36px !important;
-
-        padding: 0 !important;
-    }
-
-    div[class*="st-key-setrow_"] [data-testid="stNumberInput"] input {
-        height: 36px !important;
-
         min-height: 36px !important;
 
-        padding: 0 !important;
+        padding:
+            0
+            15px !important;
 
-        font-size: 10px !important;
-
-        text-align: center !important;
+        font-size: 9px !important;
     }
 
-    div[class*="st-key-setrow_"] [data-testid="stCheckbox"] {
+    div[class*="st-key-setrow_"]
+    [data-testid="stNumberInput"] button {
+
+        width: 16px !important;
+        min-width: 16px !important;
+
+        height: 36px !important;
+    }
+
+    div[class*="st-key-setrow_"]
+    [data-testid="stCheckbox"] {
+
         min-height: 36px !important;
     }
 
     .rest-panel {
-        padding: 11px 8px;
+        min-height: 74px;
 
-        gap: 5px;
+        padding: 10px 7px;
     }
 
     .rest-left {
-        font-size: 8px;
+        font-size: 7px;
     }
 
     .rest-clock {
-        font-size: 22px;
+        font-size: 21px;
     }
 
     .rest-mini {
-        min-width: 31px;
+        min-width: 29px;
 
-        height: 33px;
+        height: 31px;
 
-        padding: 0 4px;
-
-        font-size: 8px;
+        font-size: 7px;
     }
 
     .rest-play {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
 
-        flex-basis: 38px;
+        flex-basis: 36px;
     }
 }
 
@@ -1516,6 +1483,7 @@ def go(screen):
 
 
 def format_weight(value):
+
     if value is None:
         return ""
 
@@ -1528,16 +1496,22 @@ def format_weight(value):
 
 
 def format_rest(seconds):
+
     if not seconds:
         return "00:00"
 
     minutes = int(seconds) // 60
-    remaining_seconds = int(seconds) % 60
+    secs = int(seconds) % 60
 
-    return f"{minutes:02d}:{remaining_seconds:02d}"
+    return f"{minutes:02d}:{secs:02d}"
 
 
-def get_set_key(workout_exercise_id, set_number, field):
+def get_set_key(
+    workout_exercise_id,
+    set_number,
+    field,
+):
+
     return (
         f"we_{workout_exercise_id}_"
         f"set_{set_number}_"
@@ -1546,6 +1520,7 @@ def get_set_key(workout_exercise_id, set_number, field):
 
 
 def prescription_text(sets):
+
     if not sets:
         return "Serie non impostate"
 
@@ -1557,12 +1532,20 @@ def prescription_text(sets):
         for item in sets
     ]
 
-    if signatures and len(set(signatures)) == 1:
+    if len(set(signatures)) == 1:
 
-        reps = sets[0].get("target_reps")
-        weight = sets[0].get("target_weight_kg")
+        reps = sets[0].get(
+            "target_reps"
+        )
 
-        if reps is not None and weight is not None:
+        weight = sets[0].get(
+            "target_weight_kg"
+        )
+
+        if (
+            reps is not None
+            and weight is not None
+        ):
             return (
                 f"{len(sets)} × {reps} "
                 f"@ {format_weight(weight)} kg"
@@ -1575,26 +1558,45 @@ def prescription_text(sets):
 
     for item in sets:
 
-        reps = item.get("target_reps")
-        weight = item.get("target_weight_kg")
+        reps = item.get(
+            "target_reps"
+        )
 
-        if reps is not None and weight is not None:
+        weight = item.get(
+            "target_weight_kg"
+        )
+
+        if (
+            reps is not None
+            and weight is not None
+        ):
             pieces.append(
-                f"{reps}×{format_weight(weight)}kg"
+                f"{reps}×"
+                f"{format_weight(weight)}kg"
             )
 
         elif reps is not None:
-            pieces.append(f"{reps} reps")
+            pieces.append(
+                f"{reps} reps"
+            )
 
     return " • ".join(pieces)
 
 
-def prescribed_set_text(prescribed_set):
+def prescribed_set_text(item):
 
-    reps = prescribed_set.get("target_reps")
-    weight = prescribed_set.get("target_weight_kg")
+    reps = item.get(
+        "target_reps"
+    )
 
-    if reps is not None and weight is not None:
+    weight = item.get(
+        "target_weight_kg"
+    )
+
+    if (
+        reps is not None
+        and weight is not None
+    ):
         return (
             f"{reps}×"
             f"{format_weight(weight)}"
@@ -1604,7 +1606,9 @@ def prescribed_set_text(prescribed_set):
         return f"{reps} reps"
 
     if weight is not None:
-        return f"{format_weight(weight)}kg"
+        return (
+            f"{format_weight(weight)}kg"
+        )
 
     return "—"
 
@@ -1617,7 +1621,8 @@ def common_reps(sets):
     reps = [
         item.get("target_reps")
         for item in sets
-        if item.get("target_reps") is not None
+        if item.get("target_reps")
+        is not None
     ]
 
     if not reps:
@@ -1631,41 +1636,41 @@ def common_reps(sets):
 
 def completed_sets(item):
 
-    workout_exercise_id = (
+    we_id = (
         item["workout_exercise"]["id"]
     )
 
     completed = 0
 
-    for prescribed_set in item["sets"]:
+    for set_item in item["sets"]:
 
-        done_key = get_set_key(
-            workout_exercise_id,
-            prescribed_set["set_number"],
+        key = get_set_key(
+            we_id,
+            set_item["set_number"],
             "done",
         )
 
         if st.session_state.get(
-            done_key,
+            key,
             False,
         ):
             completed += 1
 
     extra_count = st.session_state.get(
-        f"extra_count_{workout_exercise_id}",
+        f"extra_count_{we_id}",
         0,
     )
 
     for index in range(extra_count):
 
-        done_key = get_set_key(
-            workout_exercise_id,
-            f"extra_{index}",
+        key = get_set_key(
+            we_id,
+            f"extra_{index + 1}",
             "done",
         )
 
         if st.session_state.get(
-            done_key,
+            key,
             False,
         ):
             completed += 1
@@ -1675,16 +1680,19 @@ def completed_sets(item):
 
 def total_sets(item):
 
-    workout_exercise_id = (
+    we_id = (
         item["workout_exercise"]["id"]
     )
 
     extra_count = st.session_state.get(
-        f"extra_count_{workout_exercise_id}",
+        f"extra_count_{we_id}",
         0,
     )
 
-    return len(item["sets"]) + extra_count
+    return (
+        len(item["sets"])
+        + extra_count
+    )
 
 
 def exercise_status(item):
@@ -1704,42 +1712,45 @@ def exercise_status(item):
 def total_progress():
 
     total = 0
-    completed = 0
+    done = 0
 
     for item in DATA["exercises"]:
 
         total += total_sets(item)
-        completed += completed_sets(item)
+        done += completed_sets(item)
 
     if total == 0:
         return 0
 
     return round(
-        (completed / total) * 100
+        done / total * 100
     )
 
 
-def find_exercise(workout_exercise_id):
+def find_exercise(we_id):
 
     for item in DATA["exercises"]:
 
         if (
             item["workout_exercise"]["id"]
-            == workout_exercise_id
+            == we_id
         ):
             return item
 
     return None
 
 
-def open_exercise(workout_exercise_id):
+def open_exercise(we_id):
 
     st.session_state.selected_exercise = (
-        workout_exercise_id
+        we_id
     )
 
     st.session_state.training_started = True
-    st.session_state.screen = "exercise"
+
+    st.session_state.screen = (
+        "exercise"
+    )
 
     st.rerun()
 
@@ -1757,7 +1768,9 @@ def bottom_nav(active="today"):
         ("○", "Profilo", "profile"),
     ]
 
-    content = '<div class="bottom-nav">'
+    output = (
+        '<div class="bottom-nav">'
+    )
 
     for icon, label, key in items:
 
@@ -1767,17 +1780,25 @@ def bottom_nav(active="today"):
             else ""
         )
 
-        content += (
-            f'<div class="bottom-nav-item {active_class}">'
-            f'<div class="bottom-nav-icon">{icon}</div>'
-            f'<div class="bottom-nav-label">{label}</div>'
+        output += (
+            f'<div class="bottom-nav-item '
+            f'{active_class}">'
+
+            f'<div class="bottom-nav-icon">'
+            f'{icon}'
+            '</div>'
+
+            f'<div class="bottom-nav-label">'
+            f'{label}'
+            '</div>'
+
             '</div>'
         )
 
-    content += "</div>"
+    output += "</div>"
 
     st.markdown(
-        content,
+        output,
         unsafe_allow_html=True,
     )
 
@@ -1799,7 +1820,7 @@ def render_home():
         )
     )
 
-    first_letter = (
+    initial = (
         first_name[0].upper()
         if first_name
         else "A"
@@ -1825,11 +1846,13 @@ def render_home():
 
             '<div class="logo">'
             'TRAINING '
-            '<span class="logo-red">HUB</span>'
+            '<span class="logo-red">'
+            'HUB'
+            '</span>'
             '</div>'
 
             f'<div class="avatar">'
-            f'{first_letter}'
+            f'{initial}'
             '</div>'
 
             '</div>'
@@ -1886,18 +1909,30 @@ def render_home():
             '<div class="stats">'
 
             '<div class="stat">'
-            f'<div class="stat-number">{exercise_count}</div>'
-            '<div class="stat-label">Esercizi</div>'
+            f'<div class="stat-number">'
+            f'{exercise_count}'
+            '</div>'
+            '<div class="stat-label">'
+            'Esercizi'
+            '</div>'
             '</div>'
 
             '<div class="stat">'
-            f'<div class="stat-number">{minutes}′</div>'
-            '<div class="stat-label">Durata</div>'
+            f'<div class="stat-number">'
+            f'{minutes}′'
+            '</div>'
+            '<div class="stat-label">'
+            'Durata'
+            '</div>'
             '</div>'
 
             '<div class="stat">'
-            f'<div class="stat-number">{block_count}</div>'
-            '<div class="stat-label">Blocchi</div>'
+            f'<div class="stat-number">'
+            f'{block_count}'
+            '</div>'
+            '<div class="stat-label">'
+            'Blocchi'
+            '</div>'
             '</div>'
 
             '</div>'
@@ -1915,14 +1950,14 @@ def render_home():
         unsafe_allow_html=True,
     )
 
-    start_label = (
+    label = (
         "▶ CONTINUA ALLENAMENTO"
         if st.session_state.training_started
         else "▶ INIZIA ALLENAMENTO"
     )
 
     if st.button(
-        start_label,
+        label,
         type="primary",
         use_container_width=True,
         key="home_start",
@@ -1933,9 +1968,11 @@ def render_home():
         go("workout")
 
     st.markdown(
-        '<div class="section-title">'
-        'IL TUO PROGRAMMA'
-        '</div>',
+        (
+            '<div class="section-title">'
+            'IL TUO PROGRAMMA'
+            '</div>'
+        ),
         unsafe_allow_html=True,
     )
 
@@ -1948,7 +1985,7 @@ def render_home():
             'padding:15px;'
             '">'
 
-            f'<div style="'
+            '<div style="'
             'font-size:16px;'
             'font-weight:900;'
             '">'
@@ -1972,13 +2009,13 @@ def render_home():
 
 
 # ============================================================
-# EXERCISE CARD
+# WORKOUT CARD
 # ============================================================
 
 def render_exercise_card(item):
 
     exercise = item["exercise"]
-    workout_exercise = item["workout_exercise"]
+    we = item["workout_exercise"]
 
     name = exercise.get(
         "name",
@@ -1986,7 +2023,7 @@ def render_exercise_card(item):
     )
 
     code = (
-        workout_exercise.get("exercise_code")
+        we.get("exercise_code")
         or ""
     )
 
@@ -2000,35 +2037,33 @@ def render_exercise_card(item):
     status = exercise_status(item)
 
     rest = (
-        workout_exercise.get(
+        we.get(
             "default_rest_seconds"
         )
         or "—"
     )
 
-    card_label = (
+    label = (
         f"{code}   {name}\n"
         f"{prescription}\n"
-        f"{completed}/{total} serie  •  "
-        f"⏱ {rest}s  •  {status}"
+        f"{completed}/{total} serie"
+        f"  •  ⏱ {rest}s"
+        f"  •  {status}"
     )
 
     if st.button(
-        card_label,
-        key=(
-            f"exercise_card_"
-            f"{workout_exercise['id']}"
-        ),
+        label,
+        key=f"exercise_card_{we['id']}",
         use_container_width=True,
     ):
 
         open_exercise(
-            workout_exercise["id"]
+            we["id"]
         )
 
 
 # ============================================================
-# WORKOUT
+# WORKOUT SCREEN
 # ============================================================
 
 def render_workout():
@@ -2146,9 +2181,11 @@ def render_workout():
     if ungrouped:
 
         st.markdown(
-            '<div class="section-title">'
-            'ALTRI ESERCIZI'
-            '</div>',
+            (
+                '<div class="section-title">'
+                'ALTRI ESERCIZI'
+                '</div>'
+            ),
             unsafe_allow_html=True,
         )
 
@@ -2163,7 +2200,7 @@ def render_workout():
 # ============================================================
 
 def render_set_row(
-    workout_exercise_id,
+    we_id,
     set_number,
     prescribed_text,
     default_weight,
@@ -2172,56 +2209,44 @@ def render_set_row(
 ):
 
     kg_key = get_set_key(
-        workout_exercise_id,
+        we_id,
         set_number,
         "kg",
     )
 
     reps_key = get_set_key(
-        workout_exercise_id,
+        we_id,
         set_number,
         "reps",
     )
 
     done_key = get_set_key(
-        workout_exercise_id,
+        we_id,
         set_number,
         "done",
     )
 
     if kg_key not in st.session_state:
         st.session_state[kg_key] = float(
-            default_weight
-            or 0
+            default_weight or 0
         )
 
     if reps_key not in st.session_state:
         st.session_state[reps_key] = int(
-            default_reps
-            or 0
+            default_reps or 0
         )
-
-    container_key = (
-        f"setrow_{workout_exercise_id}_"
-        f"{set_number}"
-    )
 
     with st.container(
-        key=container_key
+        key=f"setrow_{we_id}_{set_number}"
     ):
 
-        columns = st.columns(
-            [
-                0.48,
-                0.90,
-                1.45,
-                1.25,
-                0.42,
-            ],
-            gap="small",
+        cols = st.columns(
+            [0.55, 0.9, 1.5, 1.35, 0.48],
+            gap=None,
+            vertical_alignment="center",
         )
 
-        with columns[0]:
+        with cols[0]:
 
             extra_class = (
                 " extra-set-number"
@@ -2230,7 +2255,7 @@ def render_set_row(
             )
 
             display_number = (
-                f"+{str(set_number).split('_')[-1]}"
+                "+"
                 if extra
                 else str(set_number)
             )
@@ -2245,9 +2270,9 @@ def render_set_row(
                 unsafe_allow_html=True,
             )
 
-        with columns[1]:
+        with cols[1]:
 
-            prescription_class = (
+            extra_class = (
                 " extra-label"
                 if extra
                 else ""
@@ -2256,14 +2281,14 @@ def render_set_row(
             st.markdown(
                 (
                     f'<div class="set-prescription'
-                    f'{prescription_class}">'
+                    f'{extra_class}">'
                     f'{safe(prescribed_text)}'
                     '</div>'
                 ),
                 unsafe_allow_html=True,
             )
 
-        with columns[2]:
+        with cols[2]:
 
             st.number_input(
                 "KG",
@@ -2273,7 +2298,7 @@ def render_set_row(
                 label_visibility="collapsed",
             )
 
-        with columns[3]:
+        with cols[3]:
 
             st.number_input(
                 "REPS",
@@ -2283,7 +2308,7 @@ def render_set_row(
                 label_visibility="collapsed",
             )
 
-        with columns[4]:
+        with cols[4]:
 
             st.checkbox(
                 "✓",
@@ -2293,29 +2318,25 @@ def render_set_row(
 
 
 # ============================================================
-# EXERCISE DETAIL
+# EXERCISE SCREEN
 # ============================================================
 
 def render_exercise():
 
-    workout_exercise_id = (
+    we_id = (
         st.session_state
         .selected_exercise
     )
 
     item = find_exercise(
-        workout_exercise_id
+        we_id
     )
 
     if not item:
-        st.session_state.screen = "workout"
-        st.rerun()
+        go("workout")
 
     exercise = item["exercise"]
-    workout_exercise = item[
-        "workout_exercise"
-    ]
-
+    we = item["workout_exercise"]
     sets = item["sets"]
 
     workout_name = safe(
@@ -2333,7 +2354,7 @@ def render_exercise():
     )
 
     exercise_code = safe(
-        workout_exercise.get(
+        we.get(
             "exercise_code"
         )
         or ""
@@ -2346,15 +2367,15 @@ def render_exercise():
         or ""
     )
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # TOP
-    # --------------------------------------------------------
+    # --------------------------------------------
 
-    top_left, top_right = st.columns(
+    left, right = st.columns(
         [0.78, 0.22]
     )
 
-    with top_left:
+    with left:
 
         if st.button(
             f"‹  {workout_name.upper()}",
@@ -2362,7 +2383,7 @@ def render_exercise():
         ):
             go("workout")
 
-    with top_right:
+    with right:
 
         st.markdown(
             (
@@ -2373,9 +2394,9 @@ def render_exercise():
             unsafe_allow_html=True,
         )
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # TITLE
-    # --------------------------------------------------------
+    # --------------------------------------------
 
     st.markdown(
         (
@@ -2390,9 +2411,9 @@ def render_exercise():
         unsafe_allow_html=True,
     )
 
-    # --------------------------------------------------------
-    # MEDIA
-    # --------------------------------------------------------
+    # --------------------------------------------
+    # IMAGE / VIDEO
+    # --------------------------------------------
 
     image_url = exercise.get(
         "image_url"
@@ -2411,12 +2432,6 @@ def render_exercise():
 
     else:
 
-        play_button = (
-            '<div class="media-play">▶</div>'
-            if video_url
-            else ""
-        )
-
         st.markdown(
             (
                 '<div class="exercise-media">'
@@ -2425,8 +2440,6 @@ def render_exercise():
                 'class="exercise-media-placeholder">'
                 '🏋️'
                 '</div>'
-
-                f'{play_button}'
 
                 '</div>'
             ),
@@ -2456,12 +2469,12 @@ def render_exercise():
             unsafe_allow_html=True,
         )
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # STATS
-    # --------------------------------------------------------
+    # --------------------------------------------
 
     rest_seconds = (
-        workout_exercise.get(
+        we.get(
             "default_rest_seconds"
         )
         or 0
@@ -2476,65 +2489,39 @@ def render_exercise():
             '<div class="exercise-stats">'
 
             '<div class="exercise-stat">'
-
-            '<div class="exercise-stat-icon">'
-            '▱'
-            '</div>'
-
+            '<div class="exercise-stat-icon">▱</div>'
             '<div>'
-
             '<div class="exercise-stat-value">'
             f'{len(sets)} SERIE'
             '</div>'
-
             '<div class="exercise-stat-label">'
             'Totale'
             '</div>'
-
             '</div>'
-
             '</div>'
-
 
             '<div class="exercise-stat">'
-
-            '<div class="exercise-stat-icon">'
-            '↔'
-            '</div>'
-
+            '<div class="exercise-stat-icon">↔</div>'
             '<div>'
-
             '<div class="exercise-stat-value">'
             f'{safe(reps_value)} REPS'
             '</div>'
-
             '<div class="exercise-stat-label">'
             'Prescritte'
             '</div>'
-
             '</div>'
-
             '</div>'
-
 
             '<div class="exercise-stat">'
-
-            '<div class="exercise-stat-icon">'
-            '⏱'
-            '</div>'
-
+            '<div class="exercise-stat-icon">⏱</div>'
             '<div>'
-
             '<div class="exercise-stat-value">'
             f'{format_rest(rest_seconds)}'
             '</div>'
-
             '<div class="exercise-stat-label">'
             'Recupero'
             '</div>'
-
             '</div>'
-
             '</div>'
 
             '</div>'
@@ -2542,9 +2529,9 @@ def render_exercise():
         unsafe_allow_html=True,
     )
 
-    # --------------------------------------------------------
-    # SERIES TITLE
-    # --------------------------------------------------------
+    # --------------------------------------------
+    # SET TITLE
+    # --------------------------------------------
 
     completed = completed_sets(item)
     total = total_sets(item)
@@ -2566,26 +2553,21 @@ def render_exercise():
         unsafe_allow_html=True,
     )
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # HEADER
-    # --------------------------------------------------------
+    # --------------------------------------------
 
     with st.container(
-        key="set_header"
+        key=f"set_header_{we_id}"
     ):
 
-        header_columns = st.columns(
-            [
-                0.48,
-                0.90,
-                1.45,
-                1.25,
-                0.42,
-            ],
-            gap="small",
+        cols = st.columns(
+            [0.55, 0.9, 1.5, 1.35, 0.48],
+            gap=None,
+            vertical_alignment="center",
         )
 
-        header_names = [
+        names = [
             "SET",
             "PRESCR.",
             "KG",
@@ -2593,78 +2575,73 @@ def render_exercise():
             "✓",
         ]
 
-        for column, title in zip(
-            header_columns,
-            header_names,
+        for col, name in zip(
+            cols,
+            names,
         ):
 
-            with column:
+            with col:
 
                 st.markdown(
                     (
                         '<div '
                         'class="set-header-cell">'
-                        f'{title}'
+                        f'{name}'
                         '</div>'
                     ),
                     unsafe_allow_html=True,
                 )
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # PRESCRIBED SETS
-    # --------------------------------------------------------
+    # --------------------------------------------
 
-    for prescribed_set in sets:
-
-        set_number = (
-            prescribed_set[
-                "set_number"
-            ]
-        )
-
-        target_reps = (
-            prescribed_set.get(
-                "target_reps"
-            )
-        )
-
-        target_weight = (
-            prescribed_set.get(
-                "target_weight_kg"
-            )
-        )
+    for set_item in sets:
 
         render_set_row(
-            workout_exercise_id=workout_exercise_id,
-            set_number=set_number,
-            prescribed_text=prescribed_set_text(
-                prescribed_set
+            we_id=we_id,
+            set_number=set_item[
+                "set_number"
+            ],
+            prescribed_text=(
+                prescribed_set_text(
+                    set_item
+                )
             ),
-            default_weight=target_weight,
-            default_reps=target_reps,
+            default_weight=set_item.get(
+                "target_weight_kg"
+            ),
+            default_reps=set_item.get(
+                "target_reps"
+            ),
         )
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # EXTRA SETS
-    # --------------------------------------------------------
+    # --------------------------------------------
 
     extra_key = (
-        f"extra_count_"
-        f"{workout_exercise_id}"
+        f"extra_count_{we_id}"
     )
 
     if extra_key not in st.session_state:
         st.session_state[extra_key] = 0
 
-    extra_count = st.session_state[
-        extra_key
-    ]
+    extra_count = (
+        st.session_state[
+            extra_key
+        ]
+    )
 
-    for index in range(extra_count):
+    for index in range(
+        extra_count
+    ):
 
         render_set_row(
-            workout_exercise_id=workout_exercise_id,
-            set_number=f"extra_{index + 1}",
+            we_id=we_id,
+            set_number=(
+                f"extra_{index + 1}"
+            ),
             prescribed_text="EXTRA",
             default_weight=0,
             default_reps=0,
@@ -2673,10 +2650,7 @@ def render_exercise():
 
     if st.button(
         "＋ AGGIUNGI SERIE",
-        key=(
-            f"add_set_"
-            f"{workout_exercise_id}"
-        ),
+        key=f"add_set_{we_id}",
         use_container_width=True,
     ):
 
@@ -2686,9 +2660,9 @@ def render_exercise():
 
         st.rerun()
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # REST
-    # --------------------------------------------------------
+    # --------------------------------------------
 
     if rest_seconds:
 
@@ -2725,14 +2699,12 @@ def render_exercise():
             unsafe_allow_html=True,
         )
 
-    # --------------------------------------------------------
+    # --------------------------------------------
     # COACH NOTE
-    # --------------------------------------------------------
+    # --------------------------------------------
 
-    coach_notes = (
-        workout_exercise.get(
-            "coach_notes"
-        )
+    coach_notes = we.get(
+        "coach_notes"
     )
 
     if coach_notes:
@@ -2754,9 +2726,9 @@ def render_exercise():
             unsafe_allow_html=True,
         )
 
-    # --------------------------------------------------------
-    # PREVIOUS / NEXT
-    # --------------------------------------------------------
+    # --------------------------------------------
+    # NEXT EXERCISE
+    # --------------------------------------------
 
     current_index = None
 
@@ -2770,10 +2742,7 @@ def render_exercise():
             ]["id"]
         )
 
-        if (
-            candidate_id
-            == workout_exercise_id
-        ):
+        if candidate_id == we_id:
             current_index = index
             break
 
@@ -2785,36 +2754,27 @@ def render_exercise():
         < len(DATA["exercises"]) - 1
     ):
 
-        next_item = (
-            DATA["exercises"][
-                current_index + 1
-            ]
-        )
+        next_item = DATA[
+            "exercises"
+        ][current_index + 1]
 
-        next_name = (
-            next_item[
-                "exercise"
-            ]["name"]
-        )
+        next_name = next_item[
+            "exercise"
+        ]["name"]
 
-        next_id = (
-            next_item[
-                "workout_exercise"
-            ]["id"]
-        )
+        next_id = next_item[
+            "workout_exercise"
+        ]["id"]
 
         nav_left, nav_right = st.columns(
-            [0.43, 0.57]
+            [0.42, 0.58]
         )
 
         with nav_left:
 
             if st.button(
-                "‹ TUTTI GLI ESERCIZI",
-                key=(
-                    f"all_exercises_"
-                    f"{workout_exercise_id}"
-                ),
+                "‹ ESERCIZI",
+                key=f"all_{we_id}",
             ):
                 go("workout")
 
@@ -2826,11 +2786,9 @@ def render_exercise():
                     f"{next_name.upper()} ›"
                 ),
                 type="primary",
-                key=(
-                    f"next_"
-                    f"{workout_exercise_id}"
-                ),
+                key=f"next_{we_id}",
             ):
+
                 open_exercise(
                     next_id
                 )
@@ -2839,10 +2797,7 @@ def render_exercise():
 
         if st.button(
             "‹ TUTTI GLI ESERCIZI",
-            key=(
-                f"all_exercises_"
-                f"{workout_exercise_id}"
-            ),
+            key=f"all_{we_id}",
             use_container_width=True,
         ):
             go("workout")
@@ -2869,4 +2824,5 @@ elif st.session_state.screen == "exercise":
 else:
 
     st.session_state.screen = "home"
+
     st.rerun()
