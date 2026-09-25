@@ -3,7 +3,7 @@ import requests
 import html
 
 # ============================================================
-# TRAINING HUB V8
+# TRAINING HUB V8.1
 # MOBILE FIRST
 # SET | REPS | KG | ✓
 # ============================================================
@@ -179,19 +179,13 @@ def load_training():
 
     for set_item in prescribed_sets:
         we_id = set_item["workout_exercise_id"]
-
-        sets_by_we.setdefault(
-            we_id,
-            [],
-        ).append(set_item)
+        sets_by_we.setdefault(we_id, []).append(set_item)
 
     exercise_data = []
 
     for we in workout_exercises:
 
-        exercise = exercises_by_id.get(
-            we["exercise_id"]
-        )
+        exercise = exercises_by_id.get(we["exercise_id"])
 
         if not exercise:
             continue
@@ -200,10 +194,7 @@ def load_training():
             {
                 "workout_exercise": we,
                 "exercise": exercise,
-                "sets": sets_by_we.get(
-                    we["id"],
-                    [],
-                ),
+                "sets": sets_by_we.get(we["id"], []),
             }
         )
 
@@ -418,7 +409,6 @@ body,
 
 .hero-label {
     color: #ff5259;
-
     font-size: 11px;
     font-weight: 900;
     letter-spacing: 1.4px;
@@ -426,14 +416,12 @@ body,
 
 .hero-title {
     margin-top: 5px;
-
     font-size: 31px;
     font-weight: 950;
 }
 
 .hero-sub {
     margin-top: 3px;
-
     color: #949ba5;
     font-size: 13px;
 }
@@ -441,19 +429,14 @@ body,
 .stats {
     display: flex;
     gap: 8px;
-
     margin-top: 22px;
 }
 
 .stat {
     flex: 1;
-
     padding: 12px 6px;
-
     border-radius: 14px;
-
     background: #0c0e11;
-
     text-align: center;
 }
 
@@ -464,9 +447,7 @@ body,
 
 .stat-label {
     margin-top: 2px;
-
     color: #717985;
-
     font-size: 9px;
     font-weight: 800;
     text-transform: uppercase;
@@ -480,18 +461,14 @@ body,
 .progress-bg {
     width: 100%;
     height: 7px;
-
     margin-top: 17px;
-
     overflow: hidden;
-
     border-radius: 100px;
     background: #292d33;
 }
 
 .progress-fill {
     height: 100%;
-
     border-radius: 100px;
 
     background:
@@ -531,11 +508,7 @@ div[class*="st-key-exercise_card_"] button {
 
     position: relative;
 
-    padding:
-        12px
-        45px
-        12px
-        82px;
+    padding: 12px 45px 12px 82px;
 
     overflow: hidden;
 
@@ -595,11 +568,8 @@ div[class*="st-key-exercise_card_"] button::after {
 
 div[class*="st-key-exercise_card_"] button p {
     margin: 0;
-
     white-space: pre-wrap;
-
     text-align: left;
-
     font-size: 12px;
     line-height: 1.45;
 }
@@ -611,7 +581,6 @@ div[class*="st-key-exercise_card_"] button p {
 
 .exercise-code {
     height: 42px;
-
     padding: 0 13px;
 
     display: flex;
@@ -702,9 +671,7 @@ div[class*="st-key-exercise_card_"] button p {
 
 .exercise-stats {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 
     gap: 7px;
 
@@ -783,27 +750,27 @@ div[class*="st-key-exercise_card_"] button p {
     justify-content: space-between;
 
     margin-top: 6px;
-    margin-bottom: 8px;
+    margin-bottom: 14px;
 }
 
 .set-title {
-    color: #858d98;
+    color: #aab2bd;
 
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 1.6px;
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 1.8px;
 }
 
 .set-progress {
     color: #ff464e;
 
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 950;
 }
 
 
 /* ============================================================
-   SET TABLE V8
+   SET TABLE
    SET | REPS | KG | ✓
 ============================================================ */
 
@@ -811,9 +778,14 @@ div[class*="st-key-set_header_"],
 div[class*="st-key-setrow_"] {
     width: 100% !important;
     max-width: 100% !important;
-
     overflow: hidden !important;
 }
+
+
+/* ============================================================
+   IMPORTANT:
+   SAME GRID FOR HEADER AND ROWS
+============================================================ */
 
 div[class*="st-key-set_header_"]
 [data-testid="stHorizontalBlock"],
@@ -851,25 +823,83 @@ div[class*="st-key-setrow_"]
 }
 
 
-/* HEADER */
+/* ============================================================
+   HEADER FIX V8.1
+============================================================ */
+
+div[class*="st-key-set_header_"] {
+    min-height: 34px !important;
+    height: 34px !important;
+
+    margin-top: 0 !important;
+    margin-bottom: 7px !important;
+
+    padding: 0 6px !important;
+
+    overflow: visible !important;
+}
+
+div[class*="st-key-set_header_"]
+[data-testid="stHorizontalBlock"] {
+
+    min-height: 34px !important;
+    height: 34px !important;
+
+    overflow: visible !important;
+}
+
+div[class*="st-key-set_header_"]
+[data-testid="column"] {
+
+    min-height: 34px !important;
+    height: 34px !important;
+
+    overflow: visible !important;
+}
+
+div[class*="st-key-set_header_"]
+[data-testid="stMarkdownContainer"] {
+
+    height: 34px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: visible !important;
+}
+
+div[class*="st-key-set_header_"] p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
 .set-header-cell {
-    height: 28px;
+    width: 100%;
+    height: 34px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    color: #7d8692;
+    color: #b4bdc9 !important;
 
-    font-size: 8px;
-    font-weight: 950;
+    font-size: 10px !important;
+    font-weight: 950 !important;
 
-    white-space: nowrap;
+    line-height: 34px !important;
+
+    letter-spacing: .5px;
+
+    white-space: nowrap !important;
+
+    text-align: center;
 }
 
 
-/* SET ROW */
+/* ============================================================
+   SET ROW
+============================================================ */
 
 div[class*="st-key-setrow_"] {
     margin-bottom: 7px;
@@ -912,7 +942,9 @@ div[class*="st-key-setrow_"] {
 }
 
 
-/* NUMBER INPUT */
+/* ============================================================
+   NUMBER INPUT
+============================================================ */
 
 div[class*="st-key-setrow_"]
 [data-testid="stNumberInput"] {
@@ -943,9 +975,7 @@ div[class*="st-key-setrow_"]
     height: 42px !important;
     min-height: 42px !important;
 
-    padding:
-        0
-        21px !important;
+    padding: 0 21px !important;
 
     border-radius: 10px !important;
 
@@ -967,7 +997,9 @@ div[class*="st-key-setrow_"]
 }
 
 
-/* CHECKBOX */
+/* ============================================================
+   CHECKBOX
+============================================================ */
 
 div[class*="st-key-setrow_"]
 [data-testid="stCheckbox"] {
@@ -1193,7 +1225,6 @@ div[class*="st-key-add_set_"] button {
 
 .bottom-nav-icon {
     font-size: 19px;
-
     line-height: 21px;
 }
 
@@ -1230,7 +1261,6 @@ div[class*="st-key-add_set_"] button {
 
     .hero {
         padding: 19px;
-
         border-radius: 21px;
     }
 
@@ -1252,18 +1282,14 @@ div[class*="st-key-add_set_"] button {
 
     .exercise-stat {
         min-height: 62px;
-
         padding: 7px 5px;
-
         gap: 5px;
     }
 
     .exercise-stat-icon {
         width: 28px;
         height: 28px;
-
         flex-basis: 28px;
-
         font-size: 13px;
     }
 
@@ -1276,7 +1302,10 @@ div[class*="st-key-add_set_"] button {
     }
 
 
-    /* V8 MOBILE TABLE */
+    /* ========================================================
+       MOBILE TABLE
+       SET | REPS | KG | ✓
+    ======================================================== */
 
     div[class*="st-key-set_header_"]
     [data-testid="stHorizontalBlock"],
@@ -1297,7 +1326,7 @@ div[class*="st-key-add_set_"] button {
         width: 100% !important;
         max-width: 100% !important;
 
-        overflow: hidden !important;
+        overflow: visible !important;
     }
 
     div[class*="st-key-setrow_"] {
@@ -1310,9 +1339,47 @@ div[class*="st-key-add_set_"] button {
         overflow: hidden !important;
     }
 
+
+    /* HEADER MOBILE */
+
+    div[class*="st-key-set_header_"] {
+        height: 32px !important;
+        min-height: 32px !important;
+
+        margin-bottom: 7px !important;
+
+        padding: 0 5px !important;
+
+        overflow: visible !important;
+    }
+
+    div[class*="st-key-set_header_"]
+    [data-testid="stHorizontalBlock"] {
+
+        height: 32px !important;
+        min-height: 32px !important;
+
+        overflow: visible !important;
+    }
+
+    .set-header-cell {
+        height: 32px !important;
+
+        color: #b9c1cc !important;
+
+        font-size: 9px !important;
+        font-weight: 950 !important;
+
+        line-height: 32px !important;
+
+        letter-spacing: .3px;
+    }
+
+
+    /* ROW */
+
     .set-number-box {
         height: 40px;
-
         font-size: 11px;
     }
 
@@ -1322,9 +1389,7 @@ div[class*="st-key-add_set_"] button {
         height: 40px !important;
         min-height: 40px !important;
 
-        padding:
-            0
-            18px !important;
+        padding: 0 18px !important;
 
         font-size: 10px !important;
     }
@@ -1345,7 +1410,6 @@ div[class*="st-key-add_set_"] button {
 
     .rest-panel {
         min-height: 74px;
-
         padding: 10px 7px;
     }
 
@@ -1359,16 +1423,13 @@ div[class*="st-key-add_set_"] button {
 
     .rest-mini {
         min-width: 29px;
-
         height: 31px;
-
         font-size: 7px;
     }
 
     .rest-play {
         width: 36px;
         height: 36px;
-
         flex-basis: 36px;
     }
 }
@@ -1447,18 +1508,10 @@ def prescription_text(sets):
 
     if len(set(signatures)) == 1:
 
-        reps = sets[0].get(
-            "target_reps"
-        )
+        reps = sets[0].get("target_reps")
+        weight = sets[0].get("target_weight_kg")
 
-        weight = sets[0].get(
-            "target_weight_kg"
-        )
-
-        if (
-            reps is not None
-            and weight is not None
-        ):
+        if reps is not None and weight is not None:
             return (
                 f"{len(sets)} × {reps} "
                 f"@ {format_weight(weight)} kg"
@@ -1471,27 +1524,16 @@ def prescription_text(sets):
 
     for item in sets:
 
-        reps = item.get(
-            "target_reps"
-        )
+        reps = item.get("target_reps")
+        weight = item.get("target_weight_kg")
 
-        weight = item.get(
-            "target_weight_kg"
-        )
-
-        if (
-            reps is not None
-            and weight is not None
-        ):
+        if reps is not None and weight is not None:
             pieces.append(
-                f"{reps}×"
-                f"{format_weight(weight)}kg"
+                f"{reps}×{format_weight(weight)}kg"
             )
 
         elif reps is not None:
-            pieces.append(
-                f"{reps} reps"
-            )
+            pieces.append(f"{reps} reps")
 
     return " • ".join(pieces)
 
@@ -1530,10 +1572,7 @@ def completed_sets(item):
             "done",
         )
 
-        if st.session_state.get(
-            key,
-            False,
-        ):
+        if st.session_state.get(key, False):
             completed += 1
 
     extra_count = st.session_state.get(
@@ -1549,10 +1588,7 @@ def completed_sets(item):
             "done",
         )
 
-        if st.session_state.get(
-            key,
-            False,
-        ):
+        if st.session_state.get(key, False):
             completed += 1
 
     return completed
@@ -1567,10 +1603,7 @@ def total_sets(item):
         0,
     )
 
-    return (
-        len(item["sets"])
-        + extra_count
-    )
+    return len(item["sets"]) + extra_count
 
 
 def exercise_status(item):
@@ -1600,19 +1633,14 @@ def total_progress():
     if total == 0:
         return 0
 
-    return round(
-        done / total * 100
-    )
+    return round(done / total * 100)
 
 
 def find_exercise(we_id):
 
     for item in DATA["exercises"]:
 
-        if (
-            item["workout_exercise"]["id"]
-            == we_id
-        ):
+        if item["workout_exercise"]["id"] == we_id:
             return item
 
     return None
@@ -1676,10 +1704,7 @@ def render_home():
     program = DATA["program"]
 
     first_name = safe(
-        athlete.get(
-            "first_name",
-            "Atleta",
-        )
+        athlete.get("first_name", "Atleta")
     )
 
     initial = (
@@ -1689,17 +1714,11 @@ def render_home():
     )
 
     program_name = safe(
-        program.get(
-            "name",
-            "Programma",
-        )
+        program.get("name", "Programma")
     )
 
     workout_name = safe(
-        workout.get(
-            "name",
-            "Allenamento",
-        )
+        workout.get("name", "Allenamento")
     )
 
     st.markdown(
@@ -1729,18 +1748,11 @@ def render_home():
 
     progress = total_progress()
 
-    exercise_count = len(
-        DATA["exercises"]
-    )
-
-    block_count = len(
-        DATA["blocks"]
-    )
+    exercise_count = len(DATA["exercises"])
+    block_count = len(DATA["blocks"])
 
     minutes = (
-        workout.get(
-            "estimated_minutes"
-        )
+        workout.get("estimated_minutes")
         or "—"
     )
 
@@ -1804,7 +1816,6 @@ def render_home():
     ):
 
         st.session_state.training_started = True
-
         go("workout")
 
     st.markdown(
@@ -1850,19 +1861,10 @@ def render_exercise_card(item):
     exercise = item["exercise"]
     we = item["workout_exercise"]
 
-    name = exercise.get(
-        "name",
-        "Esercizio",
-    )
+    name = exercise.get("name", "Esercizio")
+    code = we.get("exercise_code") or ""
 
-    code = (
-        we.get("exercise_code")
-        or ""
-    )
-
-    prescription = prescription_text(
-        item["sets"]
-    )
+    prescription = prescription_text(item["sets"])
 
     completed = completed_sets(item)
     total = total_sets(item)
@@ -1870,9 +1872,7 @@ def render_exercise_card(item):
     status = exercise_status(item)
 
     rest = (
-        we.get(
-            "default_rest_seconds"
-        )
+        we.get("default_rest_seconds")
         or "—"
     )
 
@@ -1890,9 +1890,7 @@ def render_exercise_card(item):
         use_container_width=True,
     ):
 
-        open_exercise(
-            we["id"]
-        )
+        open_exercise(we["id"])
 
 
 # ============================================================
@@ -1904,10 +1902,7 @@ def render_workout():
     workout = DATA["workout"]
 
     workout_name = safe(
-        workout.get(
-            "name",
-            "Allenamento",
-        )
+        workout.get("name", "Allenamento")
     )
 
     back_col, title_col = st.columns(
@@ -1966,8 +1961,7 @@ def render_workout():
     for item in DATA["exercises"]:
 
         block_id = (
-            item["workout_exercise"]
-            .get("block_id")
+            item["workout_exercise"].get("block_id")
         )
 
         grouped.setdefault(
@@ -1997,10 +1991,7 @@ def render_workout():
         for item in items:
             render_exercise_card(item)
 
-    ungrouped = grouped.get(
-        None,
-        [],
-    )
+    ungrouped = grouped.get(None, [])
 
     if ungrouped:
 
@@ -2016,7 +2007,7 @@ def render_workout():
 
 
 # ============================================================
-# SET ROW V8
+# SET ROW
 # SET | REPS | KG | ✓
 # ============================================================
 
@@ -2046,7 +2037,6 @@ def render_set_row(
         "done",
     )
 
-    # Valori prescritti dal coach come valori iniziali.
     if kg_key not in st.session_state:
         st.session_state[kg_key] = float(
             default_weight or 0
@@ -2061,7 +2051,6 @@ def render_set_row(
         key=f"setrow_{we_id}_{set_number}"
     ):
 
-        # SET | REPS | KG | ✓
         cols = st.columns(
             [0.55, 1.55, 1.65, 0.50],
             gap=None,
@@ -2115,7 +2104,7 @@ def render_set_row(
                 label_visibility="collapsed",
             )
 
-        # COMPLETATA
+        # ✓
         with cols[3]:
 
             st.checkbox(
@@ -2131,14 +2120,9 @@ def render_set_row(
 
 def render_exercise():
 
-    we_id = (
-        st.session_state
-        .selected_exercise
-    )
+    we_id = st.session_state.selected_exercise
 
-    item = find_exercise(
-        we_id
-    )
+    item = find_exercise(we_id)
 
     if not item:
         go("workout")
@@ -2162,16 +2146,12 @@ def render_exercise():
     )
 
     exercise_code = safe(
-        we.get(
-            "exercise_code"
-        )
+        we.get("exercise_code")
         or ""
     )
 
     category = safe(
-        exercise.get(
-            "category"
-        )
+        exercise.get("category")
         or ""
     )
 
@@ -2214,13 +2194,8 @@ def render_exercise():
     )
 
     # IMAGE
-    image_url = exercise.get(
-        "image_url"
-    )
-
-    video_url = exercise.get(
-        "video_url"
-    )
+    image_url = exercise.get("image_url")
+    video_url = exercise.get("video_url")
 
     if image_url:
 
@@ -2250,9 +2225,7 @@ def render_exercise():
             use_container_width=True,
         )
 
-    description = exercise.get(
-        "description"
-    )
+    description = exercise.get("description")
 
     if description:
 
@@ -2267,15 +2240,11 @@ def render_exercise():
 
     # STATS
     rest_seconds = (
-        we.get(
-            "default_rest_seconds"
-        )
+        we.get("default_rest_seconds")
         or 0
     )
 
-    reps_value = common_reps(
-        sets
-    )
+    reps_value = common_reps(sets)
 
     st.markdown(
         (
@@ -2340,7 +2309,11 @@ def render_exercise():
         unsafe_allow_html=True,
     )
 
+    # ========================================================
     # HEADER
+    # SET | REPS | KG | ✓
+    # ========================================================
+
     with st.container(
         key=f"set_header_{we_id}"
     ):
@@ -2379,9 +2352,7 @@ def render_exercise():
 
         render_set_row(
             we_id=we_id,
-            set_number=set_item[
-                "set_number"
-            ],
+            set_number=set_item["set_number"],
             default_weight=set_item.get(
                 "target_weight_kg"
             ),
@@ -2391,28 +2362,18 @@ def render_exercise():
         )
 
     # EXTRA SETS
-    extra_key = (
-        f"extra_count_{we_id}"
-    )
+    extra_key = f"extra_count_{we_id}"
 
     if extra_key not in st.session_state:
         st.session_state[extra_key] = 0
 
-    extra_count = (
-        st.session_state[
-            extra_key
-        ]
-    )
+    extra_count = st.session_state[extra_key]
 
-    for index in range(
-        extra_count
-    ):
+    for index in range(extra_count):
 
         render_set_row(
             we_id=we_id,
-            set_number=(
-                f"extra_{index + 1}"
-            ),
+            set_number=f"extra_{index + 1}",
             default_weight=0,
             default_reps=0,
             extra=True,
@@ -2424,10 +2385,7 @@ def render_exercise():
         use_container_width=True,
     ):
 
-        st.session_state[
-            extra_key
-        ] += 1
-
+        st.session_state[extra_key] += 1
         st.rerun()
 
     # REST
@@ -2467,9 +2425,7 @@ def render_exercise():
         )
 
     # COACH NOTE
-    coach_notes = we.get(
-        "coach_notes"
-    )
+    coach_notes = we.get("coach_notes")
 
     if coach_notes:
 
@@ -2511,17 +2467,12 @@ def render_exercise():
 
     if (
         current_index is not None
-        and current_index
-        < len(DATA["exercises"]) - 1
+        and current_index < len(DATA["exercises"]) - 1
     ):
 
-        next_item = DATA[
-            "exercises"
-        ][current_index + 1]
+        next_item = DATA["exercises"][current_index + 1]
 
-        next_name = next_item[
-            "exercise"
-        ]["name"]
+        next_name = next_item["exercise"]["name"]
 
         next_id = next_item[
             "workout_exercise"
@@ -2550,9 +2501,7 @@ def render_exercise():
                 key=f"next_{we_id}",
             ):
 
-                open_exercise(
-                    next_id
-                )
+                open_exercise(next_id)
 
     else:
 
@@ -2585,5 +2534,4 @@ elif st.session_state.screen == "exercise":
 else:
 
     st.session_state.screen = "home"
-
     st.rerun()
