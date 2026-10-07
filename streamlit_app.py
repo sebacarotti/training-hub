@@ -1,12 +1,14 @@
 import streamlit as st
 import re
+import base64
+import mimetypes
 import streamlit.components.v1 as components
 import requests
 import html
 from pathlib import Path
 
 # ============================================================
-# TRAINING HUB V10 MOBILE COMPACT
+# TRAINING HUB V10.1 RESPONSIVE
 # IMMAGINI + TABELLA SEMPLIFICATA
 # SERIE | RIPETIZIONI | CARICO | ✓
 # ============================================================
@@ -1502,6 +1504,21 @@ div[class*="st-key-add_set_"] button {
 # ============================================================
 
 
+def image_data_uri(path):
+    """Convert a local exercise image to a data URI for compact HTML cards."""
+    if not path:
+        return ""
+    try:
+        p = Path(path)
+        if not p.exists():
+            return ""
+        mime = mimetypes.guess_type(str(p))[0] or "image/png"
+        encoded = base64.b64encode(p.read_bytes()).decode("ascii")
+        return f"data:{mime};base64,{encoded}"
+    except Exception:
+        return ""
+
+
 def display_exercise_name(name):
     """Human-facing exercise name: no A1/A2/B1/B2/C1 codes."""
     if not name:
@@ -1975,60 +1992,56 @@ def render_exercise_card(item):
     exercise = item["exercise"]
     we = item["workout_exercise"]
 
-    name = exercise.get("name", "Esercizio")
-    code = we.get("exercise_code") or ""
+    raw_name = exercise.get("name", "Esercizio")
+    name = display_exercise_name(raw_name)
 
     prescription = prescription_text(item["sets"])
-
     completed = completed_sets(item)
     total = total_sets(item)
-
     status = exercise_status(item)
-
-    rest = (
-        we.get("default_rest_seconds")
-        or "—"
-    )
+    rest = we.get("default_rest_seconds") or "—"
 
     label = (
-        f"{code}   {name}\n"
+        f"{name}\n"
         f"{prescription}\n"
-        f"{completed}/{total} serie"
-        f"  •  ⏱ {rest}s"
-        f"  •  {status}"
+        f"{completed}/{total} serie  •  ⏱ {rest}s  •  {status}"
     )
 
-    thumb_path = get_exercise_image(name)
+    thumb_path = get_exercise_image(raw_name)
+    thumb_uri = image_data_uri(thumb_path)
 
-    if thumb_path:
-        thumb_col, card_col = st.columns(
-            [0.12, 0.88],
-            gap="small",
-            vertical_alignment="center",
+    if thumb_uri:
+        st.markdown(
+            f"""
+            <style>
+            div.st-key-exercise_card_{we['id']} button {{
+                background-image: url("{thumb_uri}") !important;
+                background-repeat: no-repeat !important;
+                background-size: 58px 58px !important;
+                background-position: 12px center !important;
+                padding-left: 84px !important;
+                min-height: 76px !important;
+            }}
+            @media (max-width: 700px) {{
+                div.st-key-exercise_card_{we['id']} button {{
+                    background-size: 52px 52px !important;
+                    background-position: 10px center !important;
+                    padding-left: 72px !important;
+                    padding-right: 30px !important;
+                    min-height: 70px !important;
+                }}
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True,
         )
 
-        with thumb_col:
-            with st.container(key=f"workout_thumb_{we['id']}"):
-                st.image(
-                    str(thumb_path),
-                    use_container_width=True,
-                )
-
-        with card_col:
-            if st.button(
-                label,
-                key=f"exercise_card_{we['id']}",
-                use_container_width=True,
-            ):
-                open_exercise(we["id"])
-
-    else:
-        if st.button(
-            label,
-            key=f"exercise_card_{we['id']}",
-            use_container_width=True,
-        ):
-            open_exercise(we["id"])
+    if st.button(
+        label,
+        key=f"exercise_card_{we['id']}",
+        use_container_width=True,
+    ):
+        open_exercise(we["id"])
 
 
 # ============================================================
@@ -2285,134 +2298,78 @@ def render_exercise():
         raw_exercise_name
     )
 
-    exercise_code = safe(
-        we.get("exercise_code")
-        or ""
-    )
-
     category = safe(
         exercise.get("category")
         or ""
     )
 
+    description = exercise.get("description")
+    coach_notes = we.get("coach_notes")
+
     # ========================================================
-    # TOP
+    # TOP NAVIGATION
     # ========================================================
 
-    left, right = st.columns(
-        [0.78, 0.22]
-    )
+    if st.button(
+        f"‹  {workout_name.upper()}",
+        key="exercise_back_top",
+    ):
+        go("workout")
 
-    with left:
+    # ========================================================
+    # COMPACT EXERCISE HERO
+    # ========================================================
 
-        if st.button(
-            f"‹  {workout_name.upper()}",
-            key="exercise_back_top",
-        ):
-            go("workout")
+    local_image = get_exercise_image(raw_exercise_name)
+    remote_image = exercise.get("image_url")
+    hero_uri = image_data_uri(local_image)
 
-    with right:
+    image_html = ""
+    if hero_uri:
+        image_html = f'<img class="exercise-hero-img" src="{hero_uri}" alt="{exercise_name}">'
+    elif remote_image:
+        image_html = f'<img class="exercise-hero-img" src="{safe(remote_image)}" alt="{exercise_name}">'
+    else:
+        image_html = '<div class="exercise-hero-placeholder">🏋️</div>'
 
-        st.markdown(
-            (
-                '<div class="exercise-code">'
-                f'{exercise_code}'
-                '</div>'
-            ),
-            unsafe_allow_html=True,
+    description_html = ""
+    if description:
+        description_html = (
+            '<div class="exercise-hero-description">'
+            f'{safe(description)}'
+            '</div>'
         )
 
-    # ========================================================
-    # TITLE
-    # ========================================================
+    note_html = ""
+    if coach_notes:
+        note_html = (
+            '<div class="exercise-hero-note">'
+            '<span>NOTA COACH</span> '
+            f'{safe(coach_notes)}'
+            '</div>'
+        )
 
     st.markdown(
         (
-            f'<div class="exercise-name">'
-            f'{exercise_name}'
+            '<div class="exercise-hero">'
+            f'{image_html}'
+            '<div class="exercise-hero-info">'
+            f'<div class="exercise-hero-name">{exercise_name}</div>'
+            f'<div class="exercise-hero-category">{category}</div>'
+            f'{description_html}'
+            f'{note_html}'
             '</div>'
-
-            f'<div class="exercise-category">'
-            f'{category}'
             '</div>'
         ),
         unsafe_allow_html=True,
     )
 
-    # ========================================================
-    # IMAGE
-    # ========================================================
-
-    local_image = get_exercise_image(
-        raw_exercise_name
-    )
-
-    remote_image = exercise.get(
-        "image_url"
-    )
-
-    if local_image:
-
-        with st.container(key=f"exercise_image_{we_id}"):
-            st.image(
-                str(local_image),
-                use_container_width=True,
-            )
-
-    elif remote_image:
-
-        with st.container(key=f"exercise_image_{we_id}"):
-            st.image(
-                remote_image,
-                use_container_width=True,
-            )
-
-    else:
-
-        st.markdown(
-            (
-                '<div class="exercise-media">'
-                '<div class="exercise-media-placeholder">'
-                'IMMAGINE ESERCIZIO'
-                '</div>'
-                '</div>'
-            ),
-            unsafe_allow_html=True,
-        )
-
-    # ========================================================
-    # VIDEO
-    # ========================================================
-
-    video_url = exercise.get(
-        "video_url"
-    )
-
+    video_url = exercise.get("video_url")
     if video_url:
-
         st.link_button(
             "▶ GUARDA VIDEO",
             video_url,
             use_container_width=True,
-        )
-
-    # ========================================================
-    # DESCRIPTION
-    # ========================================================
-
-    description = exercise.get(
-        "description"
-    )
-
-    if description:
-
-        st.markdown(
-            (
-                '<div class="exercise-description">'
-                f'{safe(description)}'
-                '</div>'
-            ),
-            unsafe_allow_html=True,
         )
 
     # ========================================================
@@ -2562,33 +2519,6 @@ def render_exercise():
                 '+15s'
                 '</div>'
 
-                '</div>'
-
-                '</div>'
-            ),
-            unsafe_allow_html=True,
-        )
-
-    # ========================================================
-    # COACH NOTE
-    # ========================================================
-
-    coach_notes = we.get(
-        "coach_notes"
-    )
-
-    if coach_notes:
-
-        st.markdown(
-            (
-                '<div class="coach-note">'
-
-                '<div class="coach-note-title">'
-                '🏷 NOTA COACH'
-                '</div>'
-
-                '<div class="coach-note-text">'
-                f'{safe(coach_notes)}'
                 '</div>'
 
                 '</div>'
@@ -2828,6 +2758,136 @@ div[class*="recovery"] {
 </style>
 ''' , unsafe_allow_html=True)
 
+
+
+st.markdown(
+    """
+    <style>
+    .exercise-code, .exercise-code-pill,
+    div[class*="st-key-exercise_code_"] { display: none !important; }
+
+    div[class*="st-key-exercise_card_"] button {
+        text-align: left !important;
+        white-space: pre-line !important;
+        border-radius: 16px !important;
+        line-height: 1.35 !important;
+        font-size: 14px !important;
+    }
+
+    div[class*="st-key-workout_thumb_"] { display: none !important; }
+
+    .exercise-hero {
+        display: flex;
+        align-items: stretch;
+        gap: 14px;
+        width: 100%;
+        margin: 8px 0 10px 0;
+        padding: 10px;
+        border: 1px solid #2f353d;
+        border-radius: 16px;
+        background: #12161b;
+        box-sizing: border-box;
+    }
+
+    .exercise-hero-img, .exercise-hero-placeholder {
+        width: 118px; height: 118px; flex: 0 0 118px;
+        border-radius: 12px; object-fit: cover; object-position: center;
+        background: #0d1013;
+    }
+
+    .exercise-hero-placeholder {
+        display:flex; align-items:center; justify-content:center; font-size:28px;
+    }
+
+    .exercise-hero-info {
+        min-width:0; display:flex; flex-direction:column; justify-content:center;
+    }
+
+    .exercise-hero-name {
+        color:#fff; font-size:25px; line-height:1.05; font-weight:900; margin-bottom:3px;
+    }
+
+    .exercise-hero-category {
+        color:#9aa5b2; font-size:12px; margin-bottom:7px;
+    }
+
+    .exercise-hero-description {
+        color:#c3cad2; font-size:13px; line-height:1.3; margin-bottom:7px;
+    }
+
+    .exercise-hero-note {
+        color:#d7dce2; font-size:12px; line-height:1.3; padding:6px 8px;
+        border-left:3px solid #ff3d49; background:#171b21; border-radius:7px;
+    }
+
+    .exercise-hero-note span {
+        color:#ff4b55; font-weight:900; font-size:10px; letter-spacing:.08em;
+    }
+
+    .set-title-row { margin-top:8px !important; margin-bottom:4px !important; }
+    div[class*="st-key-setrow_"] { margin-bottom:4px !important; }
+
+    .rest-panel {
+        margin-top:8px !important; margin-bottom:8px !important;
+        min-height:64px !important; padding-top:8px !important; padding-bottom:8px !important;
+    }
+
+    @media (max-width:700px) {
+        .block-container {
+            padding-top:.45rem !important; padding-left:1rem !important;
+            padding-right:1rem !important; padding-bottom:5.3rem !important;
+        }
+
+        div[class*="st-key-exercise_card_"] button {
+            min-height:68px !important; font-size:12px !important;
+            line-height:1.28 !important; border-radius:15px !important;
+        }
+
+        .exercise-hero {
+            gap:9px; margin:5px 0 7px 0; padding:7px; border-radius:14px;
+        }
+
+        .exercise-hero-img, .exercise-hero-placeholder {
+            width:84px; height:84px; flex-basis:84px; border-radius:10px;
+        }
+
+        .exercise-hero-name {
+            font-size:19px; line-height:1.02; margin-bottom:2px;
+        }
+
+        .exercise-hero-category { font-size:10px; margin-bottom:3px; }
+
+        .exercise-hero-description {
+            font-size:10.5px; line-height:1.2; margin-bottom:4px;
+            display:-webkit-box; -webkit-line-clamp:2;
+            -webkit-box-orient:vertical; overflow:hidden;
+        }
+
+        .exercise-hero-note {
+            font-size:10px; line-height:1.18; padding:4px 6px;
+            display:-webkit-box; -webkit-line-clamp:2;
+            -webkit-box-orient:vertical; overflow:hidden;
+        }
+
+        .exercise-hero-note span { font-size:8px; }
+
+        .set-title-row { margin-top:5px !important; margin-bottom:2px !important; }
+        .set-title { font-size:17px !important; }
+        .set-header-cell { font-size:8px !important; }
+
+        div[class*="st-key-setrow_"] [data-testid="stNumberInput"] input {
+            height:28px !important; min-height:28px !important; font-size:11px !important;
+        }
+
+        .set-number-box { height:28px !important; min-height:28px !important; }
+
+        .rest-panel { min-height:56px !important; padding:6px 8px !important; }
+        .rest-clock { font-size:22px !important; }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # ROUTER
 # ============================================================
