@@ -5,7 +5,7 @@ import html
 from pathlib import Path
 
 # ============================================================
-# TRAINING HUB V9.3 ULTRA COMPACT
+# TRAINING HUB V9.4 MINI
 # IMMAGINI + TABELLA SEMPLIFICATA
 # SERIE | RIPETIZIONI | CARICO | ✓
 # ============================================================
@@ -549,11 +549,11 @@ body,
 
 div[class*="st-key-exercise_card_"] button {
     width: 100%;
-    min-height: 94px;
+    min-height: 72px;
 
     position: relative;
 
-    padding: 12px 45px 12px 22px;
+    padding: 8px 38px 8px 12px;
 
     overflow: hidden;
 
@@ -622,12 +622,12 @@ div[class*="st-key-exercise_card_"] button p {
 }
 
 .exercise-name {
-    margin-top: 6px;
-    margin-bottom: 2px;
+    margin-top: 3px;
+    margin-bottom: 1px;
 
     color: white;
 
-    font-size: 32px;
+    font-size: 29px;
     font-weight: 950;
     line-height: 1.05;
 }
@@ -706,26 +706,52 @@ div[class*="st-key-exercise_card_"] button p {
 }
 
 
-/* V9.3 - true compact exercise thumbnail */
+/* V9.4 - compact square exercise preview */
 div[class*="st-key-exercise_image_"] {
-    width: min(100%, 430px);
-    height: 140px;
-    margin: 2px auto 7px auto;
+    width: 138px;
+    height: 138px;
+    margin: 2px 0 6px 0;
     overflow: hidden;
-    border-radius: 16px;
+    border-radius: 15px;
     border: 1px solid #303640;
     background: #0d1013;
 }
 
 div[class*="st-key-exercise_image_"] [data-testid="stImage"],
 div[class*="st-key-exercise_image_"] [data-testid="stImageContainer"] {
-    width: 100% !important;
-    height: 100% !important;
+    width: 138px !important;
+    height: 138px !important;
 }
 
 div[class*="st-key-exercise_image_"] img {
-    width: 100% !important;
-    height: 140px !important;
+    width: 138px !important;
+    height: 138px !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    display: block !important;
+    margin: 0 !important;
+}
+
+/* Small thumbnail in workout exercise list */
+div[class*="st-key-workout_thumb_"] {
+    width: 62px;
+    height: 62px;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid #303640;
+    background: #0d1013;
+}
+
+div[class*="st-key-workout_thumb_"] [data-testid="stImage"],
+div[class*="st-key-workout_thumb_"] [data-testid="stImageContainer"] {
+    width: 62px !important;
+    height: 62px !important;
+}
+
+div[class*="st-key-workout_thumb_"] img {
+    width: 62px !important;
+    height: 62px !important;
     object-fit: cover !important;
     object-position: center center !important;
     display: block !important;
@@ -1249,8 +1275,8 @@ div[class*="st-key-add_set_"] button {
     }
 
     .exercise-name {
-        margin-top: 2px;
-        font-size: 27px;
+        margin-top: 1px;
+        font-size: 25px;
         line-height: 1.05;
     }
 
@@ -1269,18 +1295,30 @@ div[class*="st-key-add_set_"] button {
     }
 
     div[class*="st-key-exercise_image_"] {
-        width: 100%;
-        height: 105px;
-        margin: 0 auto 4px auto;
-        border-radius: 13px;
+        width: 92px;
+        height: 92px;
+        margin: 0 0 4px 0;
+        border-radius: 12px;
     }
 
+    div[class*="st-key-exercise_image_"] [data-testid="stImage"],
+    div[class*="st-key-exercise_image_"] [data-testid="stImageContainer"],
     div[class*="st-key-exercise_image_"] img {
-        width: 100% !important;
-        height: 105px !important;
-        object-fit: cover !important;
-        object-position: center center !important;
-        margin: 0 !important;
+        width: 92px !important;
+        height: 92px !important;
+    }
+
+    div[class*="st-key-workout_thumb_"] {
+        width: 54px;
+        height: 54px;
+        border-radius: 10px;
+    }
+
+    div[class*="st-key-workout_thumb_"] [data-testid="stImage"],
+    div[class*="st-key-workout_thumb_"] [data-testid="stImageContainer"],
+    div[class*="st-key-workout_thumb_"] img {
+        width: 54px !important;
+        height: 54px !important;
     }
 
     .exercise-description {
@@ -1315,20 +1353,20 @@ div[class*="st-key-add_set_"] button {
     }
 
     .set-number-box {
-        height: 34px;
+        height: 30px;
     }
 
     div[class*="st-key-setrow_"] [data-testid="stNumberInput"] input {
-        height: 34px !important;
-        min-height: 34px !important;
+        height: 30px !important;
+        min-height: 30px !important;
     }
 
     div[class*="st-key-setrow_"] [data-testid="stNumberInput"] button {
-        height: 34px !important;
+        height: 30px !important;
     }
 
     div[class*="st-key-setrow_"] [data-testid="stCheckbox"] {
-        min-height: 34px !important;
+        min-height: 30px !important;
     }
 
     div[class*="st-key-set_header_"]
@@ -1952,13 +1990,37 @@ def render_exercise_card(item):
         f"  •  {status}"
     )
 
-    if st.button(
-        label,
-        key=f"exercise_card_{we['id']}",
-        use_container_width=True,
-    ):
+    thumb_path = get_exercise_image(name)
 
-        open_exercise(we["id"])
+    if thumb_path:
+        thumb_col, card_col = st.columns(
+            [0.12, 0.88],
+            gap="small",
+            vertical_alignment="center",
+        )
+
+        with thumb_col:
+            with st.container(key=f"workout_thumb_{we['id']}"):
+                st.image(
+                    str(thumb_path),
+                    use_container_width=True,
+                )
+
+        with card_col:
+            if st.button(
+                label,
+                key=f"exercise_card_{we['id']}",
+                use_container_width=True,
+            ):
+                open_exercise(we["id"])
+
+    else:
+        if st.button(
+            label,
+            key=f"exercise_card_{we['id']}",
+            use_container_width=True,
+        ):
+            open_exercise(we["id"])
 
 
 # ============================================================
