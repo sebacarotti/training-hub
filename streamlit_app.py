@@ -1,3 +1,4 @@
+```
 import streamlit as st
 import requests
 import html
@@ -25,7 +26,7 @@ HEADERS = {
 }
 
 BASE_DIR = Path(__file__).resolve().parent
-IMAGES_DIR = BASE_DIR / "images"
+IMAGES_DIR = BASE_DIR
 
 
 # ============================================================
@@ -2476,3 +2477,4 @@ else:
 
     st.session_state.screen = "home"
     st.rerun()
+```
