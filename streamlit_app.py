@@ -1,10 +1,11 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import requests
 import html
 from pathlib import Path
 
 # ============================================================
-# TRAINING HUB V9.2 COMPACT
+# TRAINING HUB V9.3 ULTRA COMPACT
 # IMMAGINI + TABELLA SEMPLIFICATA
 # SERIE | RIPETIZIONI | CARICO | ✓
 # ============================================================
@@ -705,14 +706,13 @@ div[class*="st-key-exercise_card_"] button p {
 }
 
 
-/* Compact centered exercise image */
+/* V9.3 - true compact exercise thumbnail */
 div[class*="st-key-exercise_image_"] {
-    width: 100%;
-    height: 205px;
-    margin-top: 2px;
-    margin-bottom: 7px;
+    width: min(100%, 430px);
+    height: 140px;
+    margin: 2px auto 7px auto;
     overflow: hidden;
-    border-radius: 18px;
+    border-radius: 16px;
     border: 1px solid #303640;
     background: #0d1013;
 }
@@ -721,18 +721,15 @@ div[class*="st-key-exercise_image_"] [data-testid="stImage"],
 div[class*="st-key-exercise_image_"] [data-testid="stImageContainer"] {
     width: 100% !important;
     height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
 }
 
 div[class*="st-key-exercise_image_"] img {
     width: 100% !important;
-    height: 205px !important;
-    object-fit: contain !important;
+    height: 140px !important;
+    object-fit: cover !important;
     object-position: center center !important;
     display: block !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
 }
 
 .exercise-description {
@@ -1252,12 +1249,15 @@ div[class*="st-key-add_set_"] button {
     }
 
     .exercise-name {
-        margin-top: 6px;
-        font-size: 29px;
+        margin-top: 2px;
+        font-size: 27px;
+        line-height: 1.05;
     }
 
     .exercise-category {
-        margin-bottom: 10px;
+        margin-top: 2px;
+        margin-bottom: 5px;
+        font-size: 12px;
     }
 
     .exercise-code {
@@ -1269,18 +1269,18 @@ div[class*="st-key-add_set_"] button {
     }
 
     div[class*="st-key-exercise_image_"] {
-        height: 155px;
-        margin-top: 0;
-        margin-bottom: 5px;
-        border-radius: 15px;
+        width: 100%;
+        height: 105px;
+        margin: 0 auto 4px auto;
+        border-radius: 13px;
     }
 
     div[class*="st-key-exercise_image_"] img {
         width: 100% !important;
-        height: 155px !important;
-        object-fit: contain !important;
+        height: 105px !important;
+        object-fit: cover !important;
         object-position: center center !important;
-        margin: 0 auto !important;
+        margin: 0 !important;
     }
 
     .exercise-description {
@@ -1469,6 +1469,49 @@ def safe(value):
 
     return html.escape(str(value))
 
+
+
+def reset_scroll_top():
+    """Force Streamlit's page container back to the top after exercise navigation."""
+    components.html(
+        """
+        <script>
+        (function () {
+            function goTop() {
+                try {
+                    window.parent.scrollTo(0, 0);
+                } catch (e) {}
+
+                try {
+                    const doc = window.parent.document;
+                    const selectors = [
+                        '[data-testid="stAppViewContainer"]',
+                        '[data-testid="stMain"]',
+                        'section.main',
+                        '.main'
+                    ];
+
+                    selectors.forEach((selector) => {
+                        const el = doc.querySelector(selector);
+                        if (el) {
+                            el.scrollTop = 0;
+                            if (typeof el.scrollTo === 'function') {
+                                el.scrollTo({top: 0, left: 0, behavior: 'instant'});
+                            }
+                        }
+                    });
+                } catch (e) {}
+            }
+
+            goTop();
+            setTimeout(goTop, 50);
+            setTimeout(goTop, 180);
+        })();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
 def go(screen):
 
@@ -1675,6 +1718,7 @@ def open_exercise(we_id):
     st.session_state.selected_exercise = we_id
     st.session_state.training_started = True
     st.session_state.screen = "exercise"
+    st.session_state.reset_exercise_scroll = True
 
     st.rerun()
 
@@ -2139,6 +2183,10 @@ def render_set_row(
 # ============================================================
 
 def render_exercise():
+
+    if st.session_state.pop("reset_exercise_scroll", False):
+        reset_scroll_top()
+
 
     we_id = st.session_state.selected_exercise
 
