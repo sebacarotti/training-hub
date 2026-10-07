@@ -4,7 +4,7 @@ import html
 from pathlib import Path
 
 # ============================================================
-# TRAINING HUB V9
+# TRAINING HUB V9.1
 # IMMAGINI + TABELLA SEMPLIFICATA
 # SERIE | RIPETIZIONI | CARICO | ✓
 # ============================================================
@@ -595,14 +595,16 @@ div[class*="st-key-exercise_card_"] button p {
 ============================================================ */
 
 .exercise-code {
-    height: 42px;
-    padding: 0 13px;
+    width: 64px;
+    height: 38px;
+    margin-left: auto;
+    padding: 0 10px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 14px;
+    border-radius: 12px;
     border: 1px solid #ff3d46;
 
     background:
@@ -700,6 +702,33 @@ div[class*="st-key-exercise_card_"] button p {
     color: #727b86;
     font-size: 13px;
     font-weight: 800;
+}
+
+
+/* Compact Streamlit exercise image */
+div[class*="st-key-exercise_image_"] {
+    width: 100%;
+    height: 245px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid #303640;
+    background: #0d1013;
+}
+
+div[class*="st-key-exercise_image_"] [data-testid="stImage"],
+div[class*="st-key-exercise_image_"] [data-testid="stImageContainer"] {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+div[class*="st-key-exercise_image_"] img {
+    width: 100% !important;
+    height: 245px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
 }
 
 .exercise-description {
@@ -1219,11 +1248,43 @@ div[class*="st-key-add_set_"] button {
     }
 
     .exercise-name {
-        font-size: 30px;
+        margin-top: 6px;
+        font-size: 29px;
+    }
+
+    .exercise-category {
+        margin-bottom: 10px;
+    }
+
+    .exercise-code {
+        width: 58px;
+        height: 34px;
+        padding: 0 8px;
+        border-radius: 11px;
+        font-size: 12px;
+    }
+
+    div[class*="st-key-exercise_image_"] {
+        height: 220px;
+        margin-top: 0;
+        margin-bottom: 9px;
+        border-radius: 17px;
+    }
+
+    div[class*="st-key-exercise_image_"] img {
+        height: 220px !important;
+        object-fit: cover !important;
+        object-position: center !important;
     }
 
     .exercise-description {
-        margin-bottom: 20px;
+        margin-top: 7px;
+        margin-bottom: 14px;
+    }
+
+    .set-title-row {
+        margin-top: 5px;
+        margin-bottom: 8px;
     }
 
     div[class*="st-key-set_header_"]
@@ -2130,17 +2191,19 @@ def render_exercise():
 
     if local_image:
 
-        st.image(
-            str(local_image),
-            use_container_width=True,
-        )
+        with st.container(key=f"exercise_image_{we_id}"):
+            st.image(
+                str(local_image),
+                use_container_width=True,
+            )
 
     elif remote_image:
 
-        st.image(
-            remote_image,
-            use_container_width=True,
-        )
+        with st.container(key=f"exercise_image_{we_id}"):
+            st.image(
+                remote_image,
+                use_container_width=True,
+            )
 
     else:
 
@@ -2476,4 +2539,3 @@ else:
 
     st.session_state.screen = "home"
     st.rerun()
-
