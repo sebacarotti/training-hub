@@ -1,11 +1,12 @@
 import streamlit as st
+import re
 import streamlit.components.v1 as components
 import requests
 import html
 from pathlib import Path
 
 # ============================================================
-# TRAINING HUB V9.4 MINI
+# TRAINING HUB V10 MOBILE COMPACT
 # IMMAGINI + TABELLA SEMPLIFICATA
 # SERIE | RIPETIZIONI | CARICO | ✓
 # ============================================================
@@ -1500,6 +1501,13 @@ div[class*="st-key-add_set_"] button {
 # HELPERS
 # ============================================================
 
+
+def display_exercise_name(name):
+    """Human-facing exercise name: no A1/A2/B1/B2/C1 codes."""
+    if not name:
+        return ""
+    return re.sub(r"^[A-Z]\d+\s*[-–—:]?\s*", "", str(name)).strip()
+
 def safe(value):
 
     if value is None:
@@ -2674,6 +2682,151 @@ def render_exercise():
 
 
 # ============================================================
+
+<style>
+/* =========================================================
+   V10 MOBILE COMPACT
+   ========================================================= */
+
+/* Remove visible exercise-code pills/labels */
+div[class*="st-key-exercise_code_"],
+.exercise-code,
+.exercise-code-pill,
+.code-pill {
+    display: none !important;
+}
+
+/* Workout list: compact integrated row */
+div[class*="st-key-workout_thumb_"] {
+    width: 58px !important;
+    height: 58px !important;
+    margin: 0 !important;
+    border-radius: 11px !important;
+}
+div[class*="st-key-workout_thumb_"] [data-testid="stImage"],
+div[class*="st-key-workout_thumb_"] [data-testid="stImageContainer"],
+div[class*="st-key-workout_thumb_"] img {
+    width: 58px !important;
+    height: 58px !important;
+    object-fit: cover !important;
+    border-radius: 11px !important;
+}
+
+div[class*="st-key-exercise_card_"] button {
+    min-height: 66px !important;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+    border-radius: 16px !important;
+}
+
+/* Detail: compact square visual */
+div[class*="st-key-exercise_image_"] {
+    width: 104px !important;
+    height: 104px !important;
+    margin: 0 0 5px 0 !important;
+    border-radius: 13px !important;
+}
+div[class*="st-key-exercise_image_"] [data-testid="stImage"],
+div[class*="st-key-exercise_image_"] [data-testid="stImageContainer"],
+div[class*="st-key-exercise_image_"] img {
+    width: 104px !important;
+    height: 104px !important;
+    object-fit: cover !important;
+    border-radius: 13px !important;
+}
+
+.exercise-name {
+    font-size: 27px !important;
+    line-height: 1.03 !important;
+    margin: 1px 0 1px 0 !important;
+}
+.exercise-category {
+    margin: 0 0 4px 0 !important;
+    font-size: 12px !important;
+}
+.exercise-description {
+    margin-top: 4px !important;
+    margin-bottom: 7px !important;
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+}
+
+/* Sets: denser mobile-app proportions */
+div[class*="st-key-setrow_"] {
+    margin-bottom: 5px !important;
+}
+div[class*="st-key-setrow_"] [data-testid="stNumberInput"] input {
+    min-height: 30px !important;
+    height: 30px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+.set-number-box {
+    min-height: 30px !important;
+    height: 30px !important;
+}
+
+/* Recovery card: less vertical space */
+.recovery-card,
+.recovery-box,
+div[class*="recovery"] {
+    min-height: 64px !important;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    .block-container {
+        padding-top: 0.55rem !important;
+        padding-bottom: 5.2rem !important;
+    }
+
+    div[class*="st-key-workout_thumb_"] {
+        width: 52px !important;
+        height: 52px !important;
+    }
+    div[class*="st-key-workout_thumb_"] [data-testid="stImage"],
+    div[class*="st-key-workout_thumb_"] [data-testid="stImageContainer"],
+    div[class*="st-key-workout_thumb_"] img {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    div[class*="st-key-exercise_card_"] button {
+        min-height: 60px !important;
+        font-size: 13px !important;
+    }
+
+    div[class*="st-key-exercise_image_"] {
+        width: 86px !important;
+        height: 86px !important;
+    }
+    div[class*="st-key-exercise_image_"] [data-testid="stImage"],
+    div[class*="st-key-exercise_image_"] [data-testid="stImageContainer"],
+    div[class*="st-key-exercise_image_"] img {
+        width: 86px !important;
+        height: 86px !important;
+    }
+
+    .exercise-name {
+        font-size: 24px !important;
+    }
+    .exercise-description {
+        font-size: 12px !important;
+        margin-bottom: 5px !important;
+    }
+
+    div[class*="st-key-setrow_"] [data-testid="stNumberInput"] input {
+        min-height: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+    }
+    .set-number-box {
+        min-height: 28px !important;
+        height: 28px !important;
+    }
+}
+</style>
+
 # ROUTER
 # ============================================================
 
