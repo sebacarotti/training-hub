@@ -1,4 +1,3 @@
-```
 import streamlit as st
 import requests
 import html
@@ -2477,4 +2476,4 @@ else:
 
     st.session_state.screen = "home"
     st.rerun()
-```
+
